@@ -38,8 +38,8 @@ change (see notes below the table).
 | — (consistency floor for KS) | `VanillaZkVM.knowledgeSound_trivialAS` | scaffolding | proved (n/a) | n/a | n/a | Dmitry 2026-07-29 |
 | VM state S=(pc,regs,mem) (ch01) | `VanillaZkVM.VMStateWith` / `VMState` | support | proved | ✓ | ✓ | Dmitry 2026-07-29 |
 | Committed state Ŝ (ch02) | `VanillaZkVM.CommittedVMState` | support | proved | ✓ | ✓ | Dmitry 2026-07-29 |
-| Correct-execution relation R* (`eq:relation-star`) | `VanillaZkVM.ZkVM.Rstar` | frozen | proved | ✓ | ✗ (see ‡) | Dmitry 2026-07-29 |
-| Correct-trace extractability (`def:cte`) | `VanillaZkVM.ZkVM.CTE` | frozen | proved | ✓ | ✗ (see †) | Dmitry 2026-07-29 |
+| Correct-execution relation R* (`eq:relation-star`) | `VanillaZkVM.ZkVM.Rstar` | frozen | proved | — (see §) | ✗ (see ‡) | _re-review pending_ (previously Dmitry 2026-07-29) |
+| Correct-trace extractability (`def:cte`) | `VanillaZkVM.ZkVM.CTE` | frozen | proved | — (see §) | ✗ (see †) | _re-review pending_ (previously Dmitry 2026-07-29) |
 | CTE ⇔ KS (`rem:cte-ks`) | `VanillaZkVM.ZkVM.cte_iff_knowledgeSound` | frozen | proved | ✓ | ✓ | Dmitry 2026-07-29 |
 | Merkle memory commitment `Com_mem` (ch02) | `VanillaZkVM.VectorCommitment` | provisional | proved | ✓ | ✓ | Dmitry 2026-07-29 |
 | Commitment completeness (instruction before `def:binding`) | `VanillaZkVM.VectorCommitment.Complete` | provisional | proved | — | — | _unreviewed_ |
@@ -47,6 +47,16 @@ change (see notes below the table).
 | Update binding (`def:binding`) | `VanillaZkVM.VectorCommitment.UpdateBinding` | provisional | proved | — | — | _unreviewed_ |
 | Bus commitment `Com_bus` (`def:bus-cr`) | `VanillaZkVM.HashCommitment` | provisional | proved | ✓ | ✓ | Dmitry 2026-07-29 |
 | Collision resistance (`Adv^cr`) | `VanillaZkVM.CollisionResistant` | provisional | proved | ✓ | ✓ | Dmitry 2026-07-29 |
+
+> **§ Private inputs (2026-09-22) — `ZkVM`, `TraceValid`, `Rstar`, and `CTE` generalize the
+> paper.** The abstract `ZkVM` carries a private-input type `PrivInput`, both boundary
+> projections take a private input, `TraceValid` is stated under one, the `R*` witness is a
+> pair (private input, trace), and the `CTE` extractor returns such a pair. The paper's
+> `def:cte` and `eq:relation-star` are deterministic; they are recovered exactly by
+> `PrivInput := Unit`, which every current VM instance uses. The two rows above were signed
+> before this generalization, so their fidelity cells are reopened: the reviewer must confirm
+> that the deterministic specialization is the paper's statement and that the generalized
+> reading is the intended one. Every downstream instance row is unaffected in meaning.
 
 > **‡ `Rstar` is an abstract relation skeleton, not yet the whole concrete `R*`.** Its witness is a
 > trace satisfying the selected `ZkVM.step` and boundary projections, but the current abstract

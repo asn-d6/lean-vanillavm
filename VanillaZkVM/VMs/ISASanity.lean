@@ -62,8 +62,9 @@ private def readZkVM : ZkVM where
   step := (systemFor .read).stepPlain
   T := 1
   Stmt := VMState × VMState
-  initial := Prod.fst
-  terminal := Prod.snd
+  PrivInput := Unit
+  initial := fun x _ => x.1
+  terminal := fun x _ => x.2
   Proof := Unit
   verify := fun x _ => (systemFor .read).stepPlain x.1 x.2
 

@@ -174,8 +174,9 @@ def toZkVM : ZkVM where
   step := sys.isa.stepPlain
   T := sys.m * sys.Nseg
   Stmt := FinalStmtFull sys.VC
-  initial := FinalStmtFull.S0
-  terminal := FinalStmtFull.ST
+  PrivInput := Unit
+  initial := fun x _ => x.S0
+  terminal := fun x _ => x.ST
   Proof := sys.FinalProof
   verify := fun x p => sys.finalVerify ⟨toCommitted x.S0, toCommitted x.ST⟩ p
 
@@ -254,7 +255,7 @@ theorem traceValid_full
     (hupd : sys.VC.UpdateBinding)
     (x : FinalStmtFull sys.VC) (Ŝ : ℕ → CommittedVMState sys.VC)
     (hval : sys.CommittedTraceValid ⟨toCommitted x.S0, toCommitted x.ST⟩ Ŝ) :
-    sys.toZkVM.TraceValid x
+    sys.toZkVM.TraceValid x ()
       (reconstructTrace Ŝ (chooseMemStep sys.isa.committedOperation Ŝ) x.S0) := by
   obtain ⟨hstart, hend, hsteprel⟩ := hval
   have hstartc : Ŝ 0 = toCommitted x.S0 := hstart
@@ -369,9 +370,9 @@ theorem cte (hNseg : 0 < sys.Nseg) (h : sys.Assumptions) :
     sys.toZkVM.CTE := by
   obtain ⟨E, hE⟩ := sys.committedTrace_extract hNseg h
   exact ⟨fun x p =>
-      reconstructTrace (E ⟨toCommitted x.S0, toCommitted x.ST⟩ p)
+      ((), reconstructTrace (E ⟨toCommitted x.S0, toCommitted x.ST⟩ p)
         (chooseMemStep sys.isa.committedOperation
-          (E ⟨toCommitted x.S0, toCommitted x.ST⟩ p)) x.S0,
+          (E ⟨toCommitted x.S0, toCommitted x.ST⟩ p)) x.S0),
     fun x p hp =>
       sys.traceValid_full h.complete h.positionBinding h.updateBinding x _
         (hE ⟨toCommitted x.S0, toCommitted x.ST⟩ p hp)⟩

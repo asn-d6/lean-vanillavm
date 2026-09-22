@@ -37,6 +37,12 @@ the invariant number (I1, I2, …) when a decision depends on it. Modeled on the
   these are Lean-only scaffolding rather than paper rows. Changing a frozen signature requires a PR
   touching this file and re-approval of every dependent `CORRESPONDENCE.md` row that exists.
 
+  *Amendment (2026-09-22, directed by Benedikt):* the abstract `ZkVM` gained a private-input type
+  `PrivInput`, and `initial`/`terminal`, `TraceValid`, `Rstar`, and `CTE` take or return a
+  private input accordingly. `StepInterface` and the two bridges are unchanged. The paper's
+  deterministic notions are the special case `PrivInput := Unit`; the `Rstar` and `CTE`
+  correspondence rows are reopened for re-approval.
+
   **Explicitly NOT frozen — the commitment layer is provisional and expected to change:**
   `VectorCommitment`'s binding predicates in particular. `PuncturedBinding` is **known to be
   insufficient** and is removed by Issue 1 in favor of the paper's independent
