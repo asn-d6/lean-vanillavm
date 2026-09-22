@@ -64,6 +64,11 @@ The concrete VM variants currently implemented are:
   ([`VanillaVM.lean`](VanillaZkVM/VMs/VanillaVM/VanillaVM.lean)): the recursive
   proof structure in which every base segment is checked through the segment
   bus.
+- **Private-input wrapper**
+  ([`NonDeterministic/Wrapper.lean`](VanillaZkVM/VMs/NonDeterministic/Wrapper.lean)):
+  turns any of the above into a non-deterministic VM whose statement is only the
+  public part of the boundary states, by adding one outer proof layer whose
+  witness is the private input; CTE transfers from the wrapped VM.
 
 Concrete opcode semantics are still to come.
 
