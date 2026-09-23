@@ -44,7 +44,7 @@ the outer proof is the claimed initial value. -/
 private def hidden : NonDeterministic.System counter where
   Stmt := ℕ
   PrivInput := ℕ
-  embed := fun final start => (start, final)
+  hardcode := fun final start => (start, final)
   OuterProof := ℕ
   outerVerify := fun final start => final = start + 1
 

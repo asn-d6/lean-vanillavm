@@ -5,16 +5,9 @@ import VanillaZkVM.Specification.Cte
 
 A **non-deterministic** zkVM is one whose boundary states are only partly
 public: the missing part is a private input known to the prover alone. This
-module builds such a VM from any zkVM `B` by closing over the way a private
-input completes a statement of `B`. The construction touches neither `B`'s
-states nor its step predicate.
-
-The verifier of the new VM receives only the public statement, so it cannot
-form the completed statement that `B`'s verifier expects. The construction pays
-for this with one outer argument system whose witness is the private input
-together with a `B`-proof accepted for the completed statement. Knowledge
-soundness of that outer system is what lets the extractor recover the private
-input; everything after that is `B`'s own extraction.
+module builds such a VM from any given zkVM `B`, by hardcoding the private
+input, proving with `B`, and then wrapping the proof in a final outer proof.
+The wrapper touches neither `B`'s states nor its step predicate.
 
 ## Main definitions
 * `System` — the public statement, the private input, how the two complete a
@@ -49,8 +42,8 @@ structure System (B : ZkVM) where
   Stmt : Type
   /-- The private input the extractor must recover in addition to `B`'s. -/
   PrivInput : Type
-  /-- Complete a public statement with a private input into a statement of `B`. -/
-  embed : Stmt → PrivInput → B.Stmt
+  /-- Hardcode a private input into a public statement to get a statement of `B`. -/
+  hardcode : Stmt → PrivInput → B.Stmt
   /-- Proofs of the outer argument system. -/
   OuterProof : Type
   /-- Verifier of the outer argument system. -/
@@ -67,7 +60,7 @@ things the extractor of `toZkVM` needs before delegating to `B`. -/
 def ROuter : Relation where
   Stmt := sys.Stmt
   Wit := sys.PrivInput × B.Proof
-  rel := fun x wp => B.verify (sys.embed x wp.1) wp.2
+  rel := fun x wp => B.verify (sys.hardcode x wp.1) wp.2
 
 /-- The outer argument system. -/
 def ASOuter : ArgumentSystem sys.ROuter where
@@ -85,8 +78,8 @@ def toZkVM : ZkVM where
   T := B.T
   Stmt := sys.Stmt
   PrivInput := sys.PrivInput × B.PrivInput
-  initial := fun x w => B.initial (sys.embed x w.1) w.2
-  terminal := fun x w => B.terminal (sys.embed x w.1) w.2
+  initial := fun x w => B.initial (sys.hardcode x w.1) w.2
+  terminal := fun x w => B.terminal (sys.hardcode x w.1) w.2
   Proof := sys.OuterProof
   verify := sys.outerVerify
 
@@ -100,7 +93,7 @@ theorem cte (hB : B.CTE) (hOuter : KnowledgeSound sys.ASOuter) : sys.toZkVM.CTE 
   obtain ⟨EO, hEO⟩ := hOuter
   refine ⟨fun x p =>
       let wp := EO.extract x p
-      let wt := EB (sys.embed x wp.1) wp.2
+      let wt := EB (sys.hardcode x wp.1) wp.2
       ((wp.1, wt.1), wt.2), ?_⟩
   intro x p hp
   exact hEB _ _ (hEO x p hp)

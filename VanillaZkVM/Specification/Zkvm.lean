@@ -7,9 +7,8 @@ The abstract packaging every concrete VM instantiates: a state type with a step
 predicate, a fixed step count, a private-input type, boundary projections, and a
 final verifier — plus the trace-validity predicate over it.
 
-A **private input** is data the prover knows but the verifier never sees: it is
-not part of the statement, and the boundary projections may depend on it. A
-deterministic VM takes `PrivInput := Unit` and ignores it; a non-deterministic
+A **private input** is data the prover knows but the verifier never sees.
+Deterministic VMs take `PrivInput := Unit` and ignore it; a non-deterministic
 VM uses it to complete the initial state (say, as a read-only list of words the
 program can load into registers) and reflects it in the terminal state as well,
 so the statement contains only the public part of either boundary.
