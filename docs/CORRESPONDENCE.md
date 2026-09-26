@@ -59,7 +59,7 @@ change (see notes below the table).
 > reading is the intended one. Every downstream instance row is unaffected in meaning.
 
 > **‡ `Rstar` is an abstract relation skeleton, not yet the whole concrete `R*`.** Its witness is a
-> trace satisfying the selected `ZkVM.step` and boundary projections, but the current abstract
+> trace satisfying the selected `ZkVM.step`, but the current abstract
 > declaration neither requires statements to contain full-memory boundary states nor constrains
 > the verifier to commit those states as specified immediately after `eq:relation-star`. Issue 7
 > supplies that concrete boundary/verifier package in the full Vanilla VM instance. Fidelity to the

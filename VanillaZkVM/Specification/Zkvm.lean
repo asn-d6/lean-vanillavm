@@ -4,8 +4,8 @@ import Mathlib
 # What a zkVM system is
 
 The abstract packaging every concrete VM instantiates: a state type with a step
-predicate, a fixed step count, a private-input type, boundary projections, and a
-final verifier — plus the trace-validity predicate over it.
+predicate, a fixed step count, a private-input type, mappings to initial and
+terminal states, a final verifier, and the trace-validity predicate over it.
 
 A **private input** is data the prover knows but the verifier never sees.
 Deterministic VMs take `PrivInput := Unit` and ignore it; a non-deterministic
