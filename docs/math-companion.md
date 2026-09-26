@@ -354,8 +354,7 @@ The toy has a single zkVM instantiation, with
 
     V.step := ISA.System.stepPlain,     V.PrivInput := Unit.
 
-It is deterministic: both boundary projections ignore the private input, and
-its `CTE` extractor returns the unique private input `()` beside the trace.
+It is deterministic: the private input is `()`.
 Its verifier commits the full boundary memories and calls the final verifier.
 The committed layer appears only as an intermediate: a trace of committed
 states whose steps satisfy `ISA.System.committedStep`, extracted from the two

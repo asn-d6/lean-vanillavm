@@ -34,8 +34,12 @@ namespace VanillaZkVM
 
 /-- An abstract zkVM system: a state type with a step predicate, a fixed step
 count `T`, a statement type, a private-input type, `initial`/`terminal`
-boundary projections that may consult the private input, and the final proof
+mappings that may consult the private input, and the final proof
 type with its verifier.
+
+The mappings `initial`/`terminal` map the statement (what the verifier sees) and
+the private input (what only the prover sees) to an initial and terminal state
+of the computation.
 
 This is abstract packaging, motivated by `def:zkvm` and corrected `def:cte` at the
 revision pinned in `docs/PAPER_REVISION.md`; a full formalization of `def:zkvm`
@@ -53,8 +57,7 @@ structure ZkVM where
   step : State → State → Prop
   T : ℕ
   Stmt : Type
-  /-- Prover-only data the verifier never sees; `Unit` for a deterministic VM. -/
-  PrivInput : Type
+  PrivInput : Type -- `Unit` for a deterministic VM.
   initial : Stmt → PrivInput → State
   terminal : Stmt → PrivInput → State
   Proof : Type
