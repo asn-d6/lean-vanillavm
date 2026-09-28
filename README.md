@@ -11,7 +11,7 @@ The exact paper source used for review is pinned in
 its corrected `proof` revision currently differ on whether the step count `T` is adversary-chosen.
 
 > **Status: WIP.** The current core is small, clean, and axiom-clean, but idealized (see
-> [Idealization](#idealization)). The path from here to the full theorem is [`docs/PLAN.md`](docs/PLAN.md).
+> [Idealization](#idealization)). 
 
 ---
 
