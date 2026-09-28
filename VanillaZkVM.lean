@@ -26,6 +26,8 @@ import VanillaZkVM.VMs.MultiStep.MultiStep             -- binary-recursion-tree 
 import VanillaZkVM.VMs.MultiStep.MultiStepSanity       -- accepting model for the multi-step theorem
 import VanillaZkVM.VMs.VanillaVM.VanillaVM             -- recursive zkVM with bus-checked segments and main CTE theorem
 import VanillaZkVM.VMs.VanillaVM.VanillaVMSanity       -- accepting model for the assembled theorem
+import VanillaZkVM.VMs.NonDeterministic.Wrapper        -- add a private input to any zkVM via an outer proof layer
+import VanillaZkVM.VMs.NonDeterministic.WrapperSanity  -- accepting model with a non-trivial private input
 
 /-!
 # VanillaZkVM — umbrella module
@@ -40,6 +42,7 @@ list; there are no back-edges.
   `ZkVM`, `TraceValid`, `Rstar`, `CTE`, `cte_iff_knowledgeSound`).
 * `VMs/` — concrete VM machinery: state vocabulary, the step-interface contract,
   committed-memory reconstruction, the representative ISA, the per-segment bus,
-  the two-step variants, the multi-step recursion tower, and the final
-  recursive VM with bus-checked segments that instantiate the specification.
+  the two-step variants, the multi-step recursion tower, the final recursive VM
+  with bus-checked segments that instantiate the specification, and the
+  private-input wrapper that turns any of them into a non-deterministic VM.
 -/

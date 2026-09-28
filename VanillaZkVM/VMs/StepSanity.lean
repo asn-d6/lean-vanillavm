@@ -28,8 +28,9 @@ private def oneStepZkVM : ZkVM where
   step := fun pre post => post = !pre
   T := 1
   Stmt := Unit
-  initial := fun _ => false
-  terminal := fun _ => true
+  PrivInput := Unit
+  initial := fun _ _ => false
+  terminal := fun _ _ => true
   Proof := Unit
   verify := fun _ _ => True
 
@@ -48,7 +49,7 @@ example : oneStepZkVM.CTE := by
   let trace : ℕ → Bool
     | 0 => false
     | _ + 1 => true
-  refine ⟨fun _ _ => trace, ?_⟩
+  refine ⟨fun _ _ => ((), trace), ?_⟩
   intro x p hp
   refine ⟨rfl, rfl, ?_⟩
   intro i hi

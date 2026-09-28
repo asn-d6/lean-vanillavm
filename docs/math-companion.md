@@ -56,25 +56,40 @@ succinct SNARK meets it.
 commitment).
 *Lean:* `VMStateWith Mem`, `VMState`, `CommittedVMState VC`.
 
-**Abstract zkVM.** `V = (State, step, T, Stmt, initial, terminal, Proof, verify)` where
-`step ⊆ State × State`, `T ∈ ℕ` is fixed within this zkVM instance,
-`initial, terminal : Stmt → State` are the boundary projections, and
-`verify : Stmt × Proof → {0,1}` is the final verifier. The Lean model has no
-security parameter; the paper's family may choose a polynomially bounded `T`
-as a system parameter for each security parameter.
+**Abstract zkVM.** `V = (State, step, T, Stmt, PrivInput, initial, terminal, Proof, verify)`
+where `step ⊆ State × State`, `T ∈ ℕ` is fixed within this zkVM instance,
+`PrivInput` is the type of **private inputs** (prover-only data the verifier
+never sees), `initial, terminal : Stmt × PrivInput → State` are the boundary
+projections, and `verify : Stmt × Proof → {0,1}` is the final verifier. The Lean
+model has no security parameter; the paper's family may choose a polynomially
+bounded `T` as a system parameter for each security parameter.
 *Lean:* `ZkVM`.
 
 The fixed `T` follows the pinned correction to `def:cte`: program code and `T`
 are system parameters, while the adversary selects boundary states and a proof.
 
-**Trace validity.** A candidate trace `tr : ℕ → State` is valid for statement `x` iff
+The private input generalizes the paper, whose zkVM is deterministic: its
+statement determines both boundary states outright. A **deterministic** VM takes
+`PrivInput := Unit` and projections that ignore it, which recovers the paper's
+reading verbatim. A **non-deterministic** VM uses `w ∈ PrivInput` to complete
+the initial state (for instance as a read-only list of words the program can
+load into registers) and reflects the same `w` in the terminal state, so the
+statement carries only the public part of either boundary. Both projections take
+`w` for that reason: if only `initial` did, the statement would have to spell
+out the whole terminal state, private inputs included.
 
-    tr(0) = initial(x)  ∧  tr(T) = terminal(x)  ∧  ∀ i < T. step(tr(i), tr(i+1)).
+**Trace validity.** A candidate trace `tr : ℕ → State` is valid for statement `x`
+under private input `w` iff
+
+    tr(0) = initial(x, w)  ∧  tr(T) = terminal(x, w)  ∧  ∀ i < T. step(tr(i), tr(i+1)).
 
 *Lean:* `ZkVM.TraceValid`.
 
 **Correct-execution relation `R*`** (ch03). Statements are boundary claims `x`,
-witnesses are traces `tr`, and `(x ; tr) ∈ R*` iff `tr` is valid for `x`.
+witnesses are pairs `(w, tr)` of a private input and a trace, and
+`(x ; (w, tr)) ∈ R*` iff `tr` is valid for `x` under `w`. The paper's `R*` has
+witness `tr` alone; for a deterministic VM the `w` component is the unique
+element of `Unit`.
 *Lean:* `ZkVM.Rstar`. The final argument system viewed over `R*` is `ASstar`.
 
 This is the abstract trace-validity skeleton only. It neither requires `Stmt` to
@@ -84,20 +99,24 @@ The full Vanilla VM instance in §7 supplies that boundary/verifier package.
 The abstract `Rstar` declaration remains intentionally generic, so its own
 correspondence row records only the trace-validity skeleton.
 
-**Correct-trace extractability `CTE`** (`def:cte`, ch05). `V` is CTE iff there is a
-trace-extractor `E : Stmt × Proof → (ℕ → State)` such that
+**Correct-trace extractability `CTE`** (`def:cte`, ch05). `V` is CTE iff there is an
+extractor `E : Stmt × Proof → PrivInput × (ℕ → State)` such that
 
-    ∀ x, π.   verify x π = 1  ⟹  E(x, π) is a valid T-step trace for x.
+    ∀ x, π.   verify x π = 1  ⟹  E(x, π) = (w, tr) with tr a valid T-step trace for x under w.
 
+The extractor must therefore recover the private input as well as the
+intermediate states. The paper's extractor returns only the trace; for a
+deterministic VM the `w` component carries no information and the two agree.
 *Lean:* `ZkVM.CTE`.
 
 **Keystone: CTE ⇔ KS** (`rem:cte-ks`, ch05). For every abstract zkVM `V`,
 
     CTE(V)  ⟺  KnowledgeSound(ASstar(V)).
 
-Both sides are "∃ extractor, ∀ accepting `(x, π)`, output is a valid trace"; the proof
-is structural repackaging (bare function ↔ `Extractor` record). This is the equivalence
-concrete systems use: instantiate `ZkVM`, prove `KnowledgeSound ASstar`, conclude `CTE`.
+Both sides are "∃ extractor, ∀ accepting `(x, π)`, output is a private input and a
+valid trace"; the proof is structural repackaging (bare function ↔ `Extractor`
+record). This is the equivalence concrete systems use: instantiate `ZkVM`, prove
+`KnowledgeSound ASstar`, conclude `CTE`.
 *Lean:* `ZkVM.cte_iff_knowledgeSound`.
 
 ---
@@ -333,8 +352,9 @@ accounting remain assigned to Issues 6 and 10.
 
 The toy has a single zkVM instantiation, with
 
-    V.step := ISA.System.stepPlain.
+    V.step := ISA.System.stepPlain,     V.PrivInput := Unit.
 
+It is deterministic: the private input is `()`.
 Its verifier commits the full boundary memories and calls the final verifier.
 The committed layer appears only as an intermediate: a trace of committed
 states whose steps satisfy `ISA.System.committedStep`, extracted from the two
@@ -729,13 +749,14 @@ of declarations rather than shared:
     FinalStmtFull(VC) := { x = (x.S₀, x.S_T) : full states },
     toCommitted(S)    := (S.pc, S.regs, commit(S.mem)),
 
-    toZkVM := ( State   := full states over VC,
-                step    := isa.stepPlain,
-                T       := T,
-                Stmt    := FinalStmtFull(VC),
-                initial := x ↦ x.S₀,   terminal := x ↦ x.S_T,
-                Proof   := EmbedProof,
-                verify  := λ x π. embedVerify (toCommitted x.S₀, toCommitted x.S_T) π ),
+    toZkVM := ( State     := full states over VC,
+                step      := isa.stepPlain,
+                T         := T,
+                Stmt      := FinalStmtFull(VC),
+                PrivInput := Unit,
+                initial   := (x, _) ↦ x.S₀,   terminal := (x, _) ↦ x.S_T,
+                Proof     := EmbedProof,
+                verify    := λ x π. embedVerify (toCommitted x.S₀, toCommitted x.S_T) π ),
 
 and its own committed-trace predicate
 
@@ -746,10 +767,11 @@ where `isa.committedStep(Ŝ₁,Ŝ₂) := ∃ w. committedOperation(Ŝ₁,Ŝ₂,w
 
 **Committed → full lift.** Given commitment completeness, position binding, and
 update binding, the reconstruction of §1.3 along a committed trace valid for the
-*committed* boundaries of `x` is a valid `toZkVM` trace for `x`:
+*committed* boundaries of `x` is a valid `toZkVM` trace for `x` (under the unique
+private input `()`):
 
     CommittedTraceValid(toCommitted(x.S₀), toCommitted(x.S_T), Ŝ, T)
-      ⟹ TraceValid_{toZkVM}( x, reconstructTrace(Ŝ, chooseMemStep(committedOperation, Ŝ), x.S₀) ).
+      ⟹ TraceValid_{toZkVM}( x, (), reconstructTrace(Ŝ, chooseMemStep(committedOperation, Ŝ), x.S₀) ).
 
 The `MemStep` sequence is chosen against `committedOperation` rather than the
 bare memory predicate, so the program checks survive reconstruction. That is what
@@ -767,8 +789,8 @@ SNARKs and commitment completeness, position binding, and update binding,
 
 witnessed by the **explicit** extractor
 
-    E_full(x, π) := reconstructTrace( E(toCommitted x.S₀, toCommitted x.S_T, π),
-                                      chooseMemStep(…), x.S₀ ).
+    E_full(x, π) := ( (),  reconstructTrace( E(toCommitted x.S₀, toCommitted x.S_T, π),
+                                             chooseMemStep(…), x.S₀ ) ).
 
 No choice principle is applied to the conclusion — the trace `CTE` promises is
 the one `buildTrace` computes. The single unavoidable selection is
@@ -1051,12 +1073,16 @@ later module needs this intermediate result as a separate public theorem.
 
 The final zkVM is the `MultiStep` instance after the substitution above:
 
-    State   := FullVMState(VC),
-    step    := isa.stepPlain,
-    T       := T,
-    Proof   := EmbedProof,
+    State     := FullVMState(VC),
+    step      := isa.stepPlain,
+    T         := T,
+    PrivInput := Unit,
+    Proof     := EmbedProof,
     verify((S₀,S_T),π)
       := embedVerify((toCommitted(S₀),toCommitted(S_T)),π).
+
+The assembled VM is deterministic: the statement determines both full boundary
+states, and the extractor's private-input component is `()`.
 
 In particular, the public full-memory boundary states are converted to
 committed boundary states using `VC.commit`; this is the boundary-commitment

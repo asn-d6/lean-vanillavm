@@ -249,8 +249,8 @@ theorem cte (hNseg : 0 < sys.segment.Nseg) (h : sys.Assumptions) :
       let committedStatement : TwoStep.FinalStmt sys.segment.VC :=
         ⟨TwoStep.toCommitted x.S0, TwoStep.toCommitted x.ST⟩
       let execution := E committedStatement p
-      reconstructTrace (execution.trace sys)
-        (chooseMemStep sys.segment.isa.committedOperation (execution.trace sys)) x.S0, ?_⟩
+      ((), reconstructTrace (execution.trace sys)
+        (chooseMemStep sys.segment.isa.committedOperation (execution.trace sys)) x.S0), ?_⟩
   intro x p hp
   let committedStatement : TwoStep.FinalStmt sys.segment.VC :=
     ⟨TwoStep.toCommitted x.S0, TwoStep.toCommitted x.ST⟩

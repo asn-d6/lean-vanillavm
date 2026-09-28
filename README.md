@@ -38,10 +38,12 @@ properties, and a couple of generic helpers. Definitions only — the proofs tha
 downstream.
 
 **`Specification/`** states what we are trying to prove, once and abstractly. A zkVM is a state type
-with a step relation, a step count, and a final verifier; it is *correct-trace extractable* when every
-accepting proof can be turned into a valid execution reaching the claimed final state. Crucially this
-layer knows nothing about memory commitments or instruction sets, which is what lets one definition
-serve every VM.
+with a step relation, a step count, a type of private (prover-only) inputs, mappings to initial and
+terminal states that may depend on those inputs, a final verifier;
+it is *correct-trace extractable* when every accepting proof can be turned into a private input and a
+valid execution reaching the claimed final state. Deterministic VMs take the trivial private-input type.
+Crucially this layer knows nothing about memory commitments or instruction sets, which is what lets one
+definition serve every VM.
 
 **`VMs/`** holds the concrete machinery — VM states, the contract linking plain execution to
 committed-memory execution, and the reconstruction of full memory from committed memory — plus one
@@ -63,6 +65,11 @@ The concrete VM variants currently implemented are:
   ([`VanillaVM.lean`](VanillaZkVM/VMs/VanillaVM/VanillaVM.lean)): the recursive
   proof structure in which every base segment is checked through the segment
   bus.
+- **Private-input wrapper**
+  ([`NonDeterministic/Wrapper.lean`](VanillaZkVM/VMs/NonDeterministic/Wrapper.lean)):
+  turns any of the above into a non-deterministic VM whose statement is only the
+  public part of the boundary states, by adding one outer proof layer whose
+  witness is the private input; CTE transfers from the wrapped VM.
 
 Concrete opcode semantics are still to come.
 
