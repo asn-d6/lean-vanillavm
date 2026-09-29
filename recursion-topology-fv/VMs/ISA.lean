@@ -1,4 +1,4 @@
-import VanillaZkVM.VMs.Memory
+import «recursion-topology-fv».VMs.Memory
 
 /-!
 # Representative Vanilla VM operation classes

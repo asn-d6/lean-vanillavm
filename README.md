@@ -28,7 +28,7 @@ The proof is idealized in two places:
 ### Recursion: straight-line extraction composes
 
 Every SNARK layer is assumed to have a *straight-line* extractor: it extracts a valid witness off the pair
-`(statement, proof)`, without using rewinding or an oracle (`KnowledgeSound` in [`ArgumentSystem.lean`](VanillaZkVM/Preliminaries/ArgumentSystem.lean)).
+`(statement, proof)`, without using rewinding or an oracle (`KnowledgeSound` in [`ArgumentSystem.lean`](recursion-topology-fv/Preliminaries/ArgumentSystem.lean)).
 
 Hash-based SNARKs in reality only have such extractors in the random oracle model (ROM). However, recursion-based architectures cannot be examined in the ROM, as each layer's random oracle needs to beinstantiated in the circuit verifier.
 
@@ -52,16 +52,16 @@ More details can be found in [IDEALIZATION.md](https://github.com/ethereum/recur
 
 **Library.** Generic code, shared by every VM.
 
-- `VanillaZkVM/Preliminaries/`: Generic cryptography, definitions only (argument systems, commitments, traces)
-- `VanillaZkVM/Specification/`: What a zkVM is and what it must prove (CTE)
-- `VanillaZkVM/VMs/*.lean`: Shared VM building blocks (state, memory, ISA, bus, step contract)
-- `VanillaZkVM/VMs/NonDeterministic/`: Generic wrapper that adds private input to any zkVM
+- `recursion-topology-fv/Preliminaries/`: Generic cryptography, definitions only (argument systems, commitments, traces)
+- `recursion-topology-fv/Specification/`: What a zkVM is and what it must prove (CTE)
+- `recursion-topology-fv/VMs/*.lean`: Shared VM building blocks (state, memory, ISA, bus, step contract)
+- `recursion-topology-fv/VMs/NonDeterministic/`: Generic wrapper that adds private input to any zkVM
 
-**Example VMs.**
+**Integrated VMs.**
 
-- `VanillaZkVM/VMs/TwoStep/`: Minimal two-layer VM, with and without a bus
-- `VanillaZkVM/VMs/MultiStep/`: Recursive multi-step VM resembling the VanillaVM recursion architecture
-- `VanillaZkVM/VMs/VanillaVM/`: The Vanilla VM of the whitepaper
+- `recursion-topology-fv/VMs/TwoStep/`: Minimal two-layer VM, with and without a bus
+- `recursion-topology-fv/VMs/MultiStep/`: Recursive multi-step VM resembling the VanillaVM recursion architecture
+- `recursion-topology-fv/VMs/VanillaVM/`: The Vanilla VM of the whitepaper
 
 Dependencies should point one way: `Preliminaries/` → `Specification/` → `VMs/`.
 

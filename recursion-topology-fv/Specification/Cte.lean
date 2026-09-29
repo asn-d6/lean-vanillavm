@@ -1,5 +1,5 @@
-import VanillaZkVM.Preliminaries.ArgumentSystem
-import VanillaZkVM.Specification.Zkvm
+import «recursion-topology-fv».Preliminaries.ArgumentSystem
+import «recursion-topology-fv».Specification.Zkvm
 
 /-!
 # Correct-trace extractability — the specification (the abstract heart)

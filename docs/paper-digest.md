@@ -323,7 +323,7 @@ not a concrete security level.
 
 ## 6. Gap list for Lean formalization
 
-The current implementation (`VanillaZkVM/**/*.lean`): `Specification/Zkvm.lean` has the
+The current implementation (`recursion-topology-fv/**/*.lean`): `Specification/Zkvm.lean` has the
 abstract `ZkVM` structure and `Specification/Cte.lean` has `R*=ZkVM.Rstar`, `CTE=ZkVM.CTE`, keystone
 `cte_iff_knowledgeSound`; `Preliminaries/Trace.lean` has `concatTrace`/`chain_flatten`.
 `Preliminaries/ArgumentSystem.lean`

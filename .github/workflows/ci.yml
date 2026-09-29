@@ -32,7 +32,7 @@ jobs:
 
       # Cache the toolchain + the built oleans (Mathlib's dominate). Keyed on the
       # toolchain and dependency manifest so a bump correctly invalidates it; the
-      # local VanillaZkVM/* oleans still rebuild from the restored Mathlib cache.
+      # local recursion-topology-fv/* oleans still rebuild from the restored Mathlib cache.
       - name: Cache Lean toolchain and build
         uses: actions/cache@v4
         with:

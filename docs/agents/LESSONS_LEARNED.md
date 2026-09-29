@@ -104,8 +104,8 @@ guard; when a guard becomes a CI check, note that.
   (INVARIANTS.md I7).
 
 - **The default Lake target is not the whole source tree.** A new `.lean` file that is not
-  imported by `VanillaZkVM.lean` is ignored by bare `lake build`; the umbrella file itself is
-  also missed by a `VanillaZkVM/**/*.lean`-only source glob. Either gap can hide an anonymous
+  imported by `recursion-topology-fv.lean` is ignored by bare `lake build`; the umbrella file itself is
+  also missed by a `recursion-topology-fv/**/*.lean`-only source glob. Either gap can hide an anonymous
   `sorry` or direct `sorryAx`.
   **Guard:** `scripts/ci_checks.py` inventories the umbrella plus every submodule, explicitly
   builds/imports each discovered module, and self-tests the enumeration.

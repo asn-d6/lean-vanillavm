@@ -1,4 +1,4 @@
-import VanillaZkVM.Specification.Cte
+import «recursion-topology-fv».Specification.Cte
 
 /-!
 # Adding a private input to a zkVM

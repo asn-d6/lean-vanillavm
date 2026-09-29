@@ -1,4 +1,4 @@
-import VanillaZkVM.Specification.Zkvm
+import «recursion-topology-fv».Specification.Zkvm
 
 /-!
 # Step-interface contract

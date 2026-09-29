@@ -1,5 +1,5 @@
-import VanillaZkVM.VMs.ISA
-import VanillaZkVM.Specification.Zkvm
+import «recursion-topology-fv».VMs.ISA
+import «recursion-topology-fv».Specification.Zkvm
 
 /-!
 # Sanity checks for the representative ISA operation classes

@@ -1,4 +1,4 @@
-import VanillaZkVM.VMs.State
+import «recursion-topology-fv».VMs.State
 
 /-!
 # Memory extractability

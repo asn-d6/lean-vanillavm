@@ -1,4 +1,4 @@
-import VanillaZkVM.VMs.Memory
+import «recursion-topology-fv».VMs.Memory
 
 /-!
 # Memory-binding sanity models

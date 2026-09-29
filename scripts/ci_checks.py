@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CI audit checks for lean-vanillavm (INVARIANTS.md I1, I7).
+"""CI audit checks for recursion-topology-fv (INVARIANTS.md I1, I7).
 
 Checks are selected by flag (multiple may be passed together — the Lean audits share a
 single `lake env lean` invocation, so Mathlib is loaded once):
@@ -39,7 +39,7 @@ single `lake env lean` invocation, so Mathlib is loaded once):
                                 non-permitted axiom or if `collectAxioms` reports
                                 `sorryAx`/a non-permitted axiom.
                              2. A source scan of the umbrella
-                                `VanillaZkVM.lean` and `VanillaZkVM/**/*.lean`
+                                `recursion-topology-fv.lean` and `recursion-topology-fv/**/*.lean`
                                 (comments and string literals stripped) rejecting
                                 `sorry`/`sorryAx`/`admit`/`native_decide` and any
                                 `axiom` declaration — this also catches an
@@ -101,8 +101,8 @@ IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_.']*$")
 CODESPAN = re.compile(r"`([^`]+)`")
 
 # Project source scanned by the hygiene source layer.
-LEAN_ROOT = REPO / "VanillaZkVM.lean"
-LEAN_SRC_DIR = REPO / "VanillaZkVM"
+LEAN_ROOT = REPO / "recursion-topology-fv.lean"
+LEAN_SRC_DIR = REPO / "recursion-topology-fv"
 # Tokens that must never appear in project source (I7). `axiom` is included
 # because the permitted axioms come from core/Mathlib — we never declare our own.
 FORBIDDEN_TOKENS = [
@@ -127,7 +127,7 @@ run_cmd do
   let mut scanned := 0
   for i in [0 : env.header.moduleNames.size] do
     let mod := env.header.moduleNames[i]!
-    if mod == `VanillaZkVM || (`VanillaZkVM).isPrefixOf mod then
+    if mod == `«recursion-topology-fv» || (`«recursion-topology-fv»).isPrefixOf mod then
       let data := env.header.moduleData[i]!
       for n in data.constNames do
         scanned := scanned + 1
@@ -152,7 +152,7 @@ end CIHygieneCheck
 
 
 def project_lean_files() -> list[Path]:
-    """Every source module in the root `lean_lib VanillaZkVM`.
+    """Every source module in the root `lean_lib recursion-topology-fv`.
 
     The umbrella file is a sibling of the module directory, so a directory-only
     glob is insufficient. Keep this enumeration in one place: it drives the
@@ -165,15 +165,21 @@ def project_lean_files() -> list[Path]:
 
 
 def module_name(path: Path) -> str:
-    """Translate a project source path to its Lean module name."""
+    """Translate a project source path to its Lean module name.
+
+    A component that is not a plain identifier (the hyphenated root directory)
+    is written `«...»`, which is how both `import` and `lake build +<module>`
+    spell it.
+    """
     rel = path.relative_to(REPO)
     if rel.suffix != ".lean":
         raise ValueError(f"not a Lean source file: {rel}")
     parts = rel.with_suffix("").parts
-    component = re.compile(r"^[A-Za-z_][A-Za-z0-9_']*$")
+    component = re.compile(r"^[A-Za-z_][A-Za-z0-9_'-]*$")
+    plain = re.compile(r"^[A-Za-z_][A-Za-z0-9_']*$")
     if not parts or any(not component.match(part) for part in parts):
         raise ValueError(f"cannot derive a Lean module name from {rel}")
-    return ".".join(parts)
+    return ".".join(part if plain.match(part) else f"«{part}»" for part in parts)
 
 
 def _strip_lean_noncode(src: str) -> str:
@@ -265,7 +271,7 @@ def check_hygiene_source() -> int:
     problems: list[str] = []
     files = project_lean_files()
     if not files:
-        print("ERROR: no VanillaZkVM project .lean files found", file=sys.stderr)
+        print("ERROR: no project .lean files found under recursion-topology-fv/", file=sys.stderr)
         return 1
     for path in files:
         problems.extend(source_problems(path, path.read_text(encoding="utf-8")))
@@ -321,7 +327,7 @@ example : True := by native_decide
 
     files = project_lean_files()
     if LEAN_ROOT not in files:
-        failures.append("umbrella VanillaZkVM.lean is absent from project enumeration")
+        failures.append("umbrella recursion-topology-fv.lean is absent from project enumeration")
     names = [module_name(path) for path in files]
     if len(names) != len(set(names)):
         failures.append("project source enumeration produced duplicate module names")
@@ -329,10 +335,10 @@ example : True := by native_decide
     # Preliminaries -> Specification -> VMs tree, to catch a glob that stops
     # recursing into subdirectories.
     expected_modules = [
-        "VanillaZkVM",
-        "VanillaZkVM.Preliminaries.ArgumentSystem",
-        "VanillaZkVM.Specification.Cte",
-        "VanillaZkVM.VMs.TwoStep.TwoStep",
+        "«recursion-topology-fv»",
+        "«recursion-topology-fv».Preliminaries.ArgumentSystem",
+        "«recursion-topology-fv».Specification.Cte",
+        "«recursion-topology-fv».VMs.TwoStep.TwoStep",
     ]
     missing = [m for m in expected_modules if m not in names]
     if missing:

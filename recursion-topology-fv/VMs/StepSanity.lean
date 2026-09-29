@@ -1,5 +1,5 @@
-import VanillaZkVM.Specification.Cte
-import VanillaZkVM.VMs.Step
+import «recursion-topology-fv».Specification.Cte
+import «recursion-topology-fv».VMs.Step
 
 /-!
 # Consistency-floor model for the abstract zkVM and the step interface

@@ -5,7 +5,7 @@ import Mathlib
 
 The memory-commitment layer. This file is **definitions only**; the models that
 witness satisfiability of the binding notions and the countermodel separating
-them (I6) live in `VanillaZkVM/VMs/MemorySanity.lean`, beside the memory
+them (I6) live in `recursion-topology-fv/VMs/MemorySanity.lean`, beside the memory
 reconstruction that consumes them.
 
 ## Provisional (`docs/INVARIANTS.md` I4) — expected to change

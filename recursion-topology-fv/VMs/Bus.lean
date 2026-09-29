@@ -1,6 +1,6 @@
-import VanillaZkVM.Preliminaries.ArgumentSystem
-import VanillaZkVM.Preliminaries.HashCommitment
-import VanillaZkVM.VMs.ISA
+import «recursion-topology-fv».Preliminaries.ArgumentSystem
+import «recursion-topology-fv».Preliminaries.HashCommitment
+import «recursion-topology-fv».VMs.ISA
 
 /-!
 # Reusable segment-bus extraction

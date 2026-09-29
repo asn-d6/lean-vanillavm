@@ -1,5 +1,5 @@
-import VanillaZkVM.VMs.Bus
-import VanillaZkVM.VMs.MultiStep.MultiStep
+import «recursion-topology-fv».VMs.Bus
+import «recursion-topology-fv».VMs.MultiStep.MultiStep
 
 /-!
 # The recursive Vanilla VM with segment buses

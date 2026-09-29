@@ -1,4 +1,4 @@
-import VanillaZkVM.VMs.NonDeterministic.Wrapper
+import «recursion-topology-fv».VMs.NonDeterministic.Wrapper
 
 /-!
 # Consistency-floor model for the private-input wrapper

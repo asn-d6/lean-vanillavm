@@ -1,4 +1,4 @@
-import VanillaZkVM.Preliminaries.VectorCommitment
+import «recursion-topology-fv».Preliminaries.VectorCommitment
 
 /-!
 # VM states (Execution Model — Chapter 1)

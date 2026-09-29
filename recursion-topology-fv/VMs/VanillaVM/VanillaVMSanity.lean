@@ -1,5 +1,5 @@
-import VanillaZkVM.VMs.MemorySanity
-import VanillaZkVM.VMs.VanillaVM.VanillaVM
+import «recursion-topology-fv».VMs.MemorySanity
+import «recursion-topology-fv».VMs.VanillaVM.VanillaVM
 
 /-!
 # Consistency check for the assembled Vanilla VM

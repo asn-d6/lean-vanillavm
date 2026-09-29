@@ -1,5 +1,5 @@
-import VanillaZkVM.VMs.MemorySanity
-import VanillaZkVM.VMs.TwoStep.WithBus
+import «recursion-topology-fv».VMs.MemorySanity
+import «recursion-topology-fv».VMs.TwoStep.WithBus
 
 /-!
 # Consistency checks for the segment bus and its two-layer connection

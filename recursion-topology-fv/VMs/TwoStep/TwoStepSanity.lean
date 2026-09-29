@@ -1,5 +1,5 @@
-import VanillaZkVM.VMs.MemorySanity
-import VanillaZkVM.VMs.TwoStep.TwoStep
+import «recursion-topology-fv».VMs.MemorySanity
+import «recursion-topology-fv».VMs.TwoStep.TwoStep
 
 /-!
 # Consistency-floor model for two-step CTE

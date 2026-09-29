@@ -1,5 +1,5 @@
-import VanillaZkVM.VMs.Bus
-import VanillaZkVM.VMs.TwoStep.TwoStep
+import «recursion-topology-fv».VMs.Bus
+import «recursion-topology-fv».VMs.TwoStep.TwoStep
 
 /-!
 # TwoStep VM with the reusable segment bus

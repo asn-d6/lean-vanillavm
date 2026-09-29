@@ -1,7 +1,7 @@
-import VanillaZkVM.Preliminaries.Trace
-import VanillaZkVM.Specification.Cte
-import VanillaZkVM.VMs.ISA
-import VanillaZkVM.VMs.Step
+import «recursion-topology-fv».Preliminaries.Trace
+import «recursion-topology-fv».Specification.Cte
+import «recursion-topology-fv».VMs.ISA
+import «recursion-topology-fv».VMs.Step
 
 /-!
 # A minimal "two-step" zkVM, instantiating the abstract system
