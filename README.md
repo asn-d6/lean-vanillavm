@@ -1,4 +1,4 @@
-# Vanilla zkVM — Lean formalization
+# recursion-topology-fv
 
 A Lean 4 / Mathlib formalization of the **Vanilla zkVM** and its main security result, ported from
 the Ethereum Foundation zkVM whitepaper example (`zkvm-whitepaper/sampleVM/`, chapters ch01–ch05).
@@ -77,8 +77,6 @@ Each `*Sanity.lean` file holds concrete models and countermodels witnessing that
 beside it are satisfiable and the theorems consuming them non-vacuous — kept separate so the
 definition files stay definitions-only.
 
-The representative five-class ISA is documented in
-[`docs/ISA.md`](docs/ISA.md).
 The segment-bus construction is described mathematically in
 [`docs/math-companion.md`](docs/math-companion.md).
 

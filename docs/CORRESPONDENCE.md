@@ -7,7 +7,7 @@ statement"). Adapted from `finality/CORRESPONDENCE.md`.
 
 **Status vocabulary:** `stated` (statement written, proof may be `sorry`) · `proved` (proof
 complete, axiom-clean) · `pending(N)` (blocked on N other rows) · `n/a` (Lean-only scaffolding, no
-paper counterpart) · `planned` (not yet in code; owned by an issue).
+paper counterpart).
 
 **Reviewer columns:** `Fidelity` = does the Lean statement mean the paper statement? ·
 `Complete` = does it cover the *whole* paper statement, not a faithful fragment? (finality learned
@@ -61,7 +61,7 @@ change (see notes below the table).
 > **‡ `Rstar` is an abstract relation skeleton, not yet the whole concrete `R*`.** Its witness is a
 > trace satisfying the selected `ZkVM.step`, but the current abstract
 > declaration neither requires statements to contain full-memory boundary states nor constrains
-> the verifier to commit those states as specified immediately after `eq:relation-star`. Issue 7
+> the verifier to commit those states as specified immediately after `eq:relation-star`. The assembly
 > supplies that concrete boundary/verifier package in the full Vanilla VM instance. Fidelity to the
 > trace-validity component is signed; completeness is not.
 
@@ -77,13 +77,11 @@ change (see notes below the table).
 > not. The entire `VectorCommitment` binding layer and `CollisionResistant` remain
 > *provisional* and may gain keyed/algorithmic variants.
 
-## Memory extractability (Issue 1)
+## Memory extractability
 
 These declarations formalize the memory component only. `MemFreePredicate`
 abstracts the PC/register transition and cannot itself connect a separate
-`MemStep` value to registers. The dependencies and remaining work are tracked
-in [`PLAN.md`](PLAN.md): Issue 3 supplies that program/register connection, and
-Issue 5 supplies the separate bus predicate and bridge.
+`MemStep` value to registers.
 
 For these rows, human review must separately check (a) that the read/write
 opening and memory equations match the paper's memory slice, (b) that
@@ -105,7 +103,7 @@ faithful memory component from the complete committed `φ̂_step`.
 | — (joint satisfiability model, I6) | `VanillaZkVM.MemorySanity.exactVC_bindingAssumptions` | proved (n/a) | — | — | _unreviewed_ |
 | — (punctured-condition countermodel, I6) | `VanillaZkVM.MemorySanity.appendBitVC_not_updateBinding` | proved (n/a) | — | — | _unreviewed_ |
 
-## Representative ISA (Issue 3)
+## Representative ISA
 
 The paper's full opcode taxonomy is deliberately reduced to five representative
 operation classes. `code` records only the class at each program counter, while
@@ -128,14 +126,13 @@ registers; that `committedOperation` rejects a mismatched `MemStep`; and that
 `TwoStep.System.toZkVM.step` is exactly `stepPlain`. The reviewer should also
 check that `indexOfWord` and `valueOfWord` merely convert machine words to the
 memory's address and value types; the actual instruction requirements must
-remain in `memFreePred`. The complete checklist is in
-[`ISA.md`](ISA.md#human-review-checklist).
+remain in `memFreePred`.
 
 **Reviewer action:** after checking the PR head, replace the em dashes and
 `_unreviewed_` entries below with the fidelity/completeness decision, reviewer
 name, and date **in a separate review commit**. Do not edit these cells in the
 implementation commit: the separate commit records human sign-off on a stable
-code-and-guide version.
+code version.
 
 | Paper label | Lean declaration | Status | Fidelity | Complete | Reviewer |
 |---|---|---|---|---|---|
@@ -148,7 +145,7 @@ code-and-guide version.
 | non-write operations preserve memory (ch01/ch03) | `VanillaZkVM.ISA.System.operation_preserves_memory_unless_write` | proved | — | — | _unreviewed_ |
 | committed/full operation correspondence (`prop:memory-extractability`, `thm:main` Step 6) | `VanillaZkVM.ISA.System.committedOperation_stepPlain` | proved | — | — | _unreviewed_ |
 
-## Segment bus (Issue 5)
+## Segment bus
 
 Each segment has its own `SegmentBus`. Separate lists hold Keccak calls,
 Poseidon calls, and range-check inputs. The step proof checks reads, writes, and
@@ -157,7 +154,7 @@ the required entry to the bus; the three chip proofs check every entry in their
 respective lists. The explicit `MemStep` is also kept for later memory
 reconstruction. Bus entries contain only program counters and registers because
 the hash and range checks inspect only those fields; `stepBus` separately
-requires the memory commitment to remain unchanged. This is the Issue 3
+requires the memory commitment to remain unchanged. This is the
 five-class version of the paper's bus. Each hash-list predicate also checks
 whether the fixed program assigns that call to Keccak or Poseidon. Lean uses
 lists, making order and duplicate entries part of the committed bus value; the
@@ -169,7 +166,7 @@ implementations remain outside this issue.
 The reusable declarations in `VMs/Bus.lean` depend only on the commitment
 scheme, segment length, representative ISA, and segment/inner verifiers. The
 non-recursive execution and CTE demonstration is deliberately isolated in
-`VMs/TwoStep/WithBus.lean`; the Issue 7 assembly consumes the same one-segment
+`VMs/TwoStep/WithBus.lean`; the assembly consumes the same one-segment
 system from the recursive VM without importing the two-layer connection module.
 
 Human review must verify four points independently. First,
@@ -208,7 +205,7 @@ must approve the concrete choice of lists for the paper's bus collections.
 | — (two-layer committed-chain extraction, intermediate) | `VanillaZkVM.TwoStep.System.committedTrace_extract` | proved (n/a) | n/a | n/a | _unreviewed_ |
 | toy CTE over full memory (`def:cte`, `prop:memory-extractability`) | `VanillaZkVM.TwoStep.System.cte` | proved | — | — | _unreviewed_ |
 
-## Multi-step recursion tower (Issue 4)
+## Multi-step recursion tower
 
 | Paper label | Lean declaration | Status | Fidelity | Complete | Reviewer |
 |---|---|---|---|---|---|
@@ -220,7 +217,7 @@ must approve the concrete choice of lists for the paper's bus collections.
 | multi-step CTE over full memory (`def:cte`, `prop:memory-extractability`) | `MultiStep.System.cte` | proved | — | — | _unreviewed_ |
 | — (joint satisfiability model, I6) | `VMs/MultiStep/MultiStepSanity.lean` (all declarations private — no public name to `#check`) | n/a | — | — | _unreviewed_ |
 
-## Full Vanilla VM assembly (Issue 7)
+## Full Vanilla VM assembly
 
 The assembled system uses `Bus.System.segment_extract` to prove that an
 accepted base segment proof yields the valid committed trace required by the
@@ -234,16 +231,9 @@ complete assumption structure and an accepted proof can occur together. Human
 review must confirm that this structure lists every probability-free
 assumption used by the paper and that the private connection to the recursive
 system preserves the `MemStep` recovered by the bus proof. This theorem
-deliberately omits the paper's numerical advantage bound, which remains Issue 6.
+deliberately omits the paper's numerical advantage bound.
 
 | Paper label | Lean declaration | Status | Fidelity | Complete | Reviewer |
 |---|---|---|---|---|---|
 | full zkVM with committed memory boundaries (`def:zkvm`, paragraph after `eq:relation-star`) | `VanillaZkVM.VanillaVM.System` / `VanillaZkVM.VanillaVM.System.toMultiStep` / `VanillaZkVM.VanillaVM.System.toZkVM` | proved | — | — | _unreviewed_ |
-| main CTE theorem, perfect-model form (`thm:main`) | `VanillaZkVM.VanillaVM.System.Assumptions` / `VanillaZkVM.VanillaVM.System.cte_main` | proved | — | ✗ (Issue 6 adds the advantage bound) | _unreviewed_ |
-
-## Planned (owned by issues — see PLAN.md)
-
-| Paper label | Lean declaration (planned name) | Owner issue |
-|---|---|---|
-| explicit-advantage vocabulary at fixed parameters | _name pending Issue-10 definition review_ | Issue 10 |
-| per-layer reduction bounds + `thm:main` weighted sum | _name pending Issue-6 definition review_ | Issue 6 |
+| main CTE theorem, perfect-model form (`thm:main`) | `VanillaZkVM.VanillaVM.System.Assumptions` / `VanillaZkVM.VanillaVM.System.cte_main` | proved | — | ✗ (advantage bound) | _unreviewed_ |

@@ -70,30 +70,30 @@ PERMITTED_AXIOMS = {"propext", "Classical.choice", "Quot.sound"}
 # Headline theorems whose axiom footprint CI pins. Add every theorem that an
 # issue treats as a principal result.
 HEADLINE_THEOREMS = [
-    "VanillaZkVM.ZkVM.cte_iff_knowledgeSound",   # Issue 0 — keystone
-    "VanillaZkVM.knowledgeSound_trivialAS",      # Issue 0 — non-vacuity floor
-    "VanillaZkVM.chain_flatten",                 # Issue 0 — concatenation lemma
+    "VanillaZkVM.ZkVM.cte_iff_knowledgeSound",   # keystone
+    "VanillaZkVM.knowledgeSound_trivialAS",      # non-vacuity floor
+    "VanillaZkVM.chain_flatten",                 # concatenation lemma
     "VanillaZkVM.TwoStep.System.committedTrace_extract",  # two-layer committed-chain extraction
-    "VanillaZkVM.step_reconstruct_exact",        # Issue 1/3 — preserves the selected MemStep
-    "VanillaZkVM.step_reconstruct",              # Issue 1 — constructive memory bridge core
-    "VanillaZkVM.TwoStep.System.memoryBridge",   # Issue 1 — frozen-interface realization
-    "VanillaZkVM.trace_mem_extract",             # Issue 1 — memory trace reconstruction
-    "VanillaZkVM.TwoStep.System.cte", # Issue 1 — full-memory two-step CTE
-    "VanillaZkVM.MemorySanity.exactVC_bindingAssumptions",  # Issue 1 — satisfiability
-    "VanillaZkVM.MemorySanity.appendBitVC_not_updateBinding",  # Issue 1 — countermodel
-    "VanillaZkVM.ISA.System.stepPlain_iff_operation_at_pc",  # Issue 3 — fixed-program selection
-    "VanillaZkVM.ISA.System.operation_preserves_memory_unless_write",  # Issue 3 — memory guard
-    "VanillaZkVM.ISA.System.committedOperation_stepPlain",  # Issue 3 — committed/plain bridge
-    "VanillaZkVM.MultiStep.System.memoryBridge", # Issue 4 — frozen-interface realization
-    "VanillaZkVM.MultiStep.System.combine_tree", # Issue 4 — tree-unrolling extraction
-    "VanillaZkVM.MultiStep.System.committedTrace_extract",  # Issue 4 — embed ∘ tree unrolling
-    "VanillaZkVM.MultiStep.System.cte",          # Issue 4 — full-memory multi-step CTE
-    "VanillaZkVM.Bus.System.stepWithBus_committedOperation",  # Issue 5 — bus/ISA witness bridge
-    "VanillaZkVM.Bus.System.segment_extract",  # Issue 5 — one-segment bus unification
-    "VanillaZkVM.Bus.TwoStepSystem.busBridge",  # Issue 5 — concrete step-interface bridge
-    "VanillaZkVM.Bus.TwoStepSystem.execution_extract",  # Issue 5 — non-recursive per-segment execution
-    "VanillaZkVM.Bus.TwoStepSystem.cte",       # Issue 5 — bus-backed two-step CTE
-    "VanillaZkVM.VanillaVM.System.cte_main",   # Issue 7 — recursive CTE with bus-checked segments
+    "VanillaZkVM.step_reconstruct_exact",        # preserves the selected MemStep
+    "VanillaZkVM.step_reconstruct",              # constructive memory bridge core
+    "VanillaZkVM.TwoStep.System.memoryBridge",   # frozen-interface realization
+    "VanillaZkVM.trace_mem_extract",             # memory trace reconstruction
+    "VanillaZkVM.TwoStep.System.cte", # full-memory two-step CTE
+    "VanillaZkVM.MemorySanity.exactVC_bindingAssumptions",  # satisfiability
+    "VanillaZkVM.MemorySanity.appendBitVC_not_updateBinding",  # countermodel
+    "VanillaZkVM.ISA.System.stepPlain_iff_operation_at_pc",  # fixed-program selection
+    "VanillaZkVM.ISA.System.operation_preserves_memory_unless_write",  # memory guard
+    "VanillaZkVM.ISA.System.committedOperation_stepPlain",  # committed/plain bridge
+    "VanillaZkVM.MultiStep.System.memoryBridge", # frozen-interface realization
+    "VanillaZkVM.MultiStep.System.combine_tree", # tree-unrolling extraction
+    "VanillaZkVM.MultiStep.System.committedTrace_extract",  # embed ∘ tree unrolling
+    "VanillaZkVM.MultiStep.System.cte",          # full-memory multi-step CTE
+    "VanillaZkVM.Bus.System.stepWithBus_committedOperation",  # bus/ISA witness bridge
+    "VanillaZkVM.Bus.System.segment_extract",  # one-segment bus unification
+    "VanillaZkVM.Bus.TwoStepSystem.busBridge",  # concrete step-interface bridge
+    "VanillaZkVM.Bus.TwoStepSystem.execution_extract",  # non-recursive per-segment execution
+    "VanillaZkVM.Bus.TwoStepSystem.cte",       # bus-backed two-step CTE
+    "VanillaZkVM.VanillaVM.System.cte_main",   # recursive CTE with bus-checked segments
 ]
 
 # A Lean identifier: dotted, letters/digits/_/'  (no braces, no spaces).

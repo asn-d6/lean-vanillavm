@@ -296,7 +296,7 @@ a per-step memory argument
    - Used in `thm:main` Step 6 to inductively rebuild `mem_0..mem_T` from the
      committed-state chain + per-step memory-opening witnesses `{π^mem_k}`
      extracted at the Segment layer, contributing the
-     `Σ_{k=1}^T(Adv^pos_k+Adv^upd_k)` tail. Issue 1 formalizes the
+     `Σ_{k=1}^T(Adv^pos_k+Adv^upd_k)` tail. `VMs/Memory.lean` formalizes the
      perfect, probability-free reconstruction statement; the explicit
      reductions and advantage sum remain absent (§6).
 
@@ -351,8 +351,6 @@ recursive extractor constructs and joins the committed traces recovered from the
 tree, and its CTE theorem then applies the existing memory reconstruction. The
 final `VMs/VanillaVM/VanillaVM.lean` assembly uses the bus-checked segment
 verifier for that base case and proves the probability-free main CTE theorem.
-The former playground `Bus.lean` is still only git-history reference material;
-the current file is a new Issue 5 implementation against the frozen interfaces.
 
 **(a) Committed memory / memory-commitment properties — memory core connected
 to the representative ISA.** `VMs/Memory.lean` now formalizes the perfect
@@ -372,8 +370,6 @@ adds the bus/chip evidence, while
 `MemStep` to that committed ISA relation. `Bus.TwoStepSystem.busBridge`
 uses the same recovered `MemStep` to prove that the demonstration VM has a
 suitable memory witness.
-Explicit advantage/reduction accounting remains the Issue 8 study and Issues
-10 and 6 in `PLAN.md` (the former Issue 2 was withdrawn).
 
 **(b) Multi-layer recursion — abstract recursion and concrete segment
 connection implemented.**
@@ -389,10 +385,10 @@ that these assumptions can hold together. `VMs/VanillaVM/VanillaVM.lean` uses
 the bus-checked segment verifier for the recursion's base proofs and derives
 the required extraction guarantee from `Bus.System.segment_extract`; it does
 not assume a separate bus-free segment theorem. The quantitative `(m-1)`
-accounting remains deferred to Issue 6.
+accounting remains deferred.
 
 **(c) Representative ISA operations — structure implemented, exact opcodes
-still abstract.** `VMs/ISA.lean` uses the five Issue 3 classes `read`, `write`,
+still abstract.** `VMs/ISA.lean` uses the five classes `read`, `write`,
 `arith`, `hash`, and `bin`. It defines the disjunction `stepPlain`, checks
 `code[pc]`, makes the read/write memory equations explicit, and assigns
 `stepPlain` to the concrete two-step VM. `VMs/Bus.lean` further divides `bin`
@@ -413,7 +409,7 @@ separate bus `B̂_i` and `MemStep` sequence, and reuses
 `concatTrace`/`chain_flatten` to obtain one committed-state trace. It then uses
 the existing memory reconstruction theorem to prove CTE for the non-recursive
 two-step VM. The sanity model accepts two segments with provably different
-buses. The Issue 7 assembly reuses the segment theorem for the base proofs of
+buses. The assembly reuses the segment theorem for the base proofs of
 the recursive VM; concrete chip implementations remain outside the current
 model.
 
@@ -431,12 +427,7 @@ security-parameter families, no
 negligibility predicate, no explicit reduction-adversary construction (the
 paper spells these out per-lemma, e.g. `D_3^(t)`: "run `A` once, unroll the
 tree to node `t`, forward to the `Π_3` challenger" — no challenger/experiment
-formalism exists in Lean at all), no running-time bookkeeping. Issues 10 and 6
-are scoped more narrowly than the paper's full asymptotic claim: they will add
-randomized experiments and explicit advantages at fixed parameters, then prove
-the concrete coefficient bound (`(m-1)·`, `m·`, and `Σ_{k=1}^T` terms).
-Security-parameter families, PPT predicates, negligibility, and formal running
-times remain outside that scope.
+formalism exists in Lean at all), no running-time bookkeeping.
 
 The final verifier now derives `Ŝ_0,Ŝ_T` from plain `S_0,S_T` with `Com_mem`, so
 the boundary-commitment step is present in the assembled instance even though
@@ -445,9 +436,3 @@ include concrete opcode and chip implementations. The paper's own
 `rem:idealized` caveat also remains: perfect knowledge soundness records the
 straight-line extraction assumption but does not make a relativized SNARK
 exist or establish a concrete security level.
-
-**Implementation ordering:** [`PLAN.md`](PLAN.md) is authoritative. Issues 1,
-3, 4, and 5 provide the memory, ISA, recursion, and bus layers; Issue 7 composes
-them into the probability-free main theorem. The quantitative re-foundation in
-Issues 10 and 6 follows the separate Issue-8 study and is not a prerequisite
-for the perfect model.

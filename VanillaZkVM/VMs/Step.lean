@@ -21,7 +21,7 @@ called "step." It states the required properties; concrete VM files prove them.
 `TwoStep.System.memoryBridge` discharges its `MemoryBridge` from
 `Memory.step_reconstruct_exact` plus the ISA correspondence theorem. Its
 `ZkVM.step` is `ISA.System.stepPlain`.
-`Bus.System.stepWithBus_committedOperation` checks the Issue 3 ISA cases and
+`Bus.System.stepWithBus_committedOperation` checks the ISA cases and
 preserves the segment's explicit memory witness without choosing how segment
 proofs are combined. `Bus.TwoStepSystem.busBridge` uses that witness to prove
 that the two-layer VM has a suitable memory witness. See

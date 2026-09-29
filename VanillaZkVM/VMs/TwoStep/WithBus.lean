@@ -27,7 +27,7 @@ memory.
 * `TwoStepSystem.cte` — memory reconstruction turns the concatenated committed
   trace into a valid full-memory execution.
 
-This file provides the Issue 5 `ZkVM`, whose segment proofs use the reusable
+This file provides the `ZkVM`, whose segment proofs use the reusable
 bus checks, without making those checks depend on `TwoStep`. The assembled
 recursive VM in `VMs/VanillaVM/VanillaVM.lean` instead uses the same
 `Bus.System` for its base segment proofs.

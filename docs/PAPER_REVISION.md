@@ -11,7 +11,7 @@ branch:     proof
 ```
 
 On **2026-07-29**, Dmitry accepted the review finding that this discrepancy
-needed correction. This Issue 0 draft pins the available corrected revision
+needed correction. This draft pins the available corrected revision
 above; the exact hash should be confirmed when the PR is reviewed.
 
 ## Why the pin is necessary
@@ -42,8 +42,7 @@ The last sentence following `eq:step-bus2` in ch03 still says
 **position binding plus update binding**, and explain why update binding is the
 property that forces an accepted commitment after a write to equal `Commit` of
 the updated memory.
-Issue 1 follows those formal statements; the ch03 occurrence is treated as a
-stale term, not as a third commitment assumption.
+The ch03 occurrence is treated as a stale term, not as a third commitment assumption.
 
 ## Pending read-semantics correction
 
@@ -51,7 +50,7 @@ Whitepaper proof-branch commit `aa33ed3` adds `mem₂ = mem₁` to
 `eq:phi-read-decomp` and explains why it is required: without that condition, a
 read step could replace memory. The older decomposition formula pinned above
 omits this condition, even though `eq:mem-op-read` and the ch03 prose already
-say that reads do not change memory. `FullMemory.read` and the Issue 3 ISA make
+say that reads do not change memory. `FullMemory.read` and the ISA make
 that intended behavior explicit.
 
 The pin has not been changed here. Updating it requires human confirmation and

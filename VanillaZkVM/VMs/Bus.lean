@@ -98,7 +98,7 @@ structure SegmentBus where
 /-- The two hash checks represented by the ISA's single `hash` operation
 class. The fixed program says which one applies at each program counter.
 
-This is the Issue 3 five-class simplification of the separate Keccak and
+This is the five-class simplification of the separate Keccak and
 Poseidon operations in ch03.
 
 Paper: the Keccak and Poseidon branches of `eq:step-expanded` and

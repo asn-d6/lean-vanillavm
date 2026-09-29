@@ -16,23 +16,10 @@ guard; when a guard becomes a CI check, note that.
   type error is often a variable Lean would have auto-bound elsewhere. Declare it.
   **Guard:** `autoImplicit = false` in `lakefile.toml`; do not silence the linter locally.
 
-## Git / branches
-
-- **Stale branches predate PR #4 and carry drift.** Merging a cost/CR/memory branch
-  wholesale spuriously deletes `trivialAS` (and other post-#4 declarations). Always
-  cherry-pick / re-apply the relevant hunks onto current `main`, never merge the
-  stale branch.
-  **Guard:** CONVENTIONS.md §4; branch dispositions in `docs/branch-analysis.md`.
-
-- **The deleted `Bus.lean` prototype was not ground truth.** Its declarations
-  were Yavor's playground. The current `VMs/Bus.lean` was re-derived in Issue 5;
-  do not import claims from the old file as if they were an audited checkpoint.
-  **Guard:** CONVENTIONS.md §4; the Issue-5 rows in CORRESPONDENCE.md.
-
 ## Definitions / abstraction (the load-bearing 80%, I3)
 
 - **Do not over-freeze.** The commitment/binding layer is deliberately *provisional*:
-  `PuncturedBinding` is insufficient and is replaced by `UpdateBinding` (Issue 1).
+  `PuncturedBinding` is insufficient and is replaced by `UpdateBinding`.
   Freezing it now would force a constitutional amendment to fix a known-wrong def.
   Only the I4 kernel list is frozen.
   **Guard:** INVARIANTS.md I4; provisional docstrings in `Preliminaries/VectorCommitment.lean`.
@@ -68,7 +55,7 @@ guard; when a guard becomes a CI check, note that.
   needs to construct the next full memory and prove `CommitInv` for it from the
   current represented state; assuming that conclusion would hide the
   commitment-swap gap.
-  **Guard:** frozen `StepInterface.MemoryBridge`; Issue 1's `step_reconstruct` and
+  **Guard:** frozen `StepInterface.MemoryBridge`; `step_reconstruct` and
   `TwoStep.System.memoryBridge` existentially produce the represented next state.
 
 - **Agents anchor on training-data analogues for novel-but-familiar notions.** A
@@ -97,8 +84,7 @@ guard; when a guard becomes a CI check, note that.
 
 - **A rename's risk lives in the docs, not the Lean.** `lake build` fully verifies the
   code side of a pure rename; drift lands in prose. Update living docs
-  (CORRESPONDENCE.md, MEMORY_RECONSTRUCTION.md, math-companion.md); leave historical
-  records (docs/sessions/, branch-analysis.md) describing old states. Footgun: in a
+  (CORRESPONDENCE.md, math-companion.md). Footgun: in a
   CORRESPONDENCE.md name cell, a bare name inherits the namespace of the *previous*
   dotted name, so rows mixing namespaces must fully qualify every name.
   **Guard:** `ci_checks.py --check-correspondence` elaborates every audited row

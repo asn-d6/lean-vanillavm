@@ -1,13 +1,10 @@
 # Math companion
 
 The pen-and-paper statements matching the Lean, kept in lockstep with the code
-(CONVENTIONS.md §7). For each frozen-kernel definition and headline theorem this
+(agents/CONVENTIONS.md §7). For each frozen-kernel definition and headline theorem this
 states it in ordinary mathematical notation with its paper citation, so a reviewer can
 compare **paper ↔ companion ↔ Lean** without reading proof internals. The companion,
 `docs/CORRESPONDENCE.md`, and the Lean must agree; a discrepancy is a review blocker.
-
-Every later issue appends its layer to this file. This first section is **Issue 0**: the
-frozen kernel (`docs/INVARIANTS.md` I4).
 
 Paper: the canonical `zkvm-whitepaper/sampleVM/ch01-execution-model.tex` through
 `ch05-security.tex` at `a0f5e0b63395a2fddce3f949c4de1df9264a174b`; see
@@ -15,7 +12,7 @@ Paper: the canonical `zkvm-whitepaper/sampleVM/ch01-execution-model.tex` through
 
 ---
 
-## 0. Frozen kernel (Issue 0)
+## 0. Frozen kernel
 
 ### 0.1 Relations and argument systems
 
@@ -132,7 +129,7 @@ predicate `Rep ⊆ CState × V.State`, and
 
     stepCommitted : CState × CState → Prop.
 
-Issue 5 supplies `StepAux`, which contains one segment's bus and one
+`Bus.System` supplies `StepAux`, which contains one segment's bus and one
 transition's `MemStep`, and
 
     stepWithBus : CState × CState × StepAux → Prop.
@@ -142,8 +139,8 @@ The **memory bridge** (`StepInterface.MemoryBridge`) is
     Rep(Ĉ₁,S₁) ∧ stepCommitted(Ĉ₁,Ĉ₂)
       ⟹ ∃ S₂. Rep(Ĉ₂,S₂) ∧ V.step(S₁,S₂).
 
-The existential construction of `S₂` is what lets Issue 1 establish `Rep` for
-successive states by induction. Assuming `Rep(Ĉ₂,S₂)` as a premise would prove
+The existential construction of `S₂` establishes `Rep` for successive states by
+induction. Assuming `Rep(Ĉ₂,S₂)` as a premise would prove
 only a conditional one-step refinement and would not reconstruct a trace.
 
 The **bus bridge** (`StepInterface.BusBridge stepWithBus`) is
@@ -227,7 +224,7 @@ one length-`m·Nseg` trace; `chain_flatten` proves that if each segment is a val
 
 ---
 
-## 1. Committed memory → full memory (Issue 1)
+## 1. Committed memory → full memory
 
 Paper: `prop:memory-extractability` and `rem:mem-inheritance` (ch05);
 `eq:op-mem-comm-read`/`eq:op-mem-comm-write` (ch03);
@@ -283,7 +280,7 @@ that some accepted `MemStep` exists:
 This is deliberately the **memory-only component**. By itself it does not connect
 `addr` and `v` to specific registers, decode the concrete ISA, or model the
 bus. `ISA.System.committedOperation` below adds the program/register requirements;
-Issue 5 adds the bus condition.
+the bus layer adds the bus condition.
 *Lean:* `MemStep`, `CommittedMemory.read`, `CommittedMemory.write`, `FullMemory.read`, `FullMemory.write`, `CommittedMemory.step`, `FullMemory.step`,
 `committedStep`.
 
@@ -383,16 +380,15 @@ make the frozen bridge conclusion false, not merely harder to prove.
 This remains the non-recursive toy theorem. Section 7 assembles the bus and
 recursion layers into the probability-free VanillaVM theorem. The
 representative ISA still leaves each operation's exact PC/register behavior
-abstract, and explicit quantitative reductions remain separate work in
-`docs/PLAN.md`.
+abstract.
 
 ---
 
-## 3. Representative ISA operations (Issue 3)
+## 3. Representative ISA operations
 
 Paper: `eq:phiop`, `eq:phi-read-decomp`, and `eq:phi-write-decomp` (ch01),
 and the operation taxonomy and `eq:step` (ch03). The formalization deliberately
-uses the five operation classes required by Issue 3 rather than the paper's
+uses the five operation classes rather than the paper's
 complete RV32IM/precompile taxonomy.
 
 ### 3.1 Fixed program and memory-free predicates
@@ -455,7 +451,7 @@ The write equation is the pointwise form of
          ∧ mem₂=mem₁.
 
 The read and write cases reuse `FullMemory.read` and `FullMemory.write`; they
-are not second copies of the Issue 1 memory equations.
+are not second copies of the memory equations.
 
 The pinned paper's `eq:phi-read-decomp` omits the explicit `mem₂=mem₁`
 condition, although `eq:mem-op-read` and ch03 say that a read does not change
@@ -538,7 +534,7 @@ operations; this section does not verify concrete RV32IM opcode implementations.
 
 ---
 
-## 4. Multi-layer recursion tower (Issue 4)
+## 4. Multi-layer recursion tower
 
 Paper: ch04 (`R_2`, `R_3`, `R_4`, `fig:topo`), `lem:convert`, `lem:combine`,
 `lem:embed`, `rem:wellfounded`; composed with `def:cte` and
@@ -547,7 +543,7 @@ Paper: ch04 (`R_2`, `R_3`, `R_4`, `fig:topo`), `lem:convert`, `lem:combine`,
 This replaces the flat `m`-to-1 merge of the two-step toy (§1.4) with the paper's
 binary recursion tower. Segments are still proved by a leaf SNARK, but the leaf
 is left **abstract** — its proof type and verifier are parameters — so the tower
-does not depend on the bus (Issue 5).
+does not depend on the bus.
 
 ### 4.1 System parameters
 
@@ -569,7 +565,7 @@ and with the derived segment count
 combine node: with `m = 1` there would be nothing to merge and `R_4` would have
 no combine proof to wrap.
 
-`isa` is the Issue 3 fixed-program ISA (§3), the same structure the two-step toy
+`isa` is the fixed-program ISA (§3), the same structure the two-step toy
 takes. It supplies the plain step predicate `stepPlain` used as `ZkVM.step` and
 the committed predicate `committedOperation` used by the leaf relation, so this
 layer no longer carries a bare `MemFreePredicate` of its own.
@@ -592,8 +588,7 @@ well-founded. Unbalanced shapes are admitted.
 
 A binary tree covering `m` segments has `m − 1` internal nodes, which is where
 the paper's `(m − 1)` combine coefficient comes from. The current qualitative
-extraction theorem does not count those nodes; Issue 6 will make that recurrence
-part of the quantitative reduction.
+extraction theorem does not count those nodes.
 
 *Lean:* `CombineWitness`, `RCombine`, `buildTrace`, `combine_tree`.
 
@@ -825,8 +820,8 @@ knowledge soundness of it is assumed rather than constructed. There is no bus. S
 this is the paper's recursion *structure* verified over a placeholder leaf, not
 the Vanilla VM.
 
-What is *not* abstract any more is the execution semantics. Since the Issue 3
-integration this layer runs on the same fixed-program ISA as the two-step toy:
+What is *not* abstract any more is the execution semantics. This layer runs on
+the same fixed-program ISA as the two-step toy:
 `ZkVM.step` is `isa.stepPlain`, and the leaf relation demands
 `committedOperation` at every step, so a segment proof is pinned to the operation
 `code[pc]` selects. The two VMs therefore agree about what a step is, and
@@ -840,7 +835,7 @@ does to memory.
 
 ---
 
-## 5. Segment buses and one complete execution (Issue 5)
+## 5. Segment buses and one complete execution
 
 Paper: the bus layout in ch02; `eq:step-expanded`, `eq:step-bus2`, the four
 inner relations and `R_1` in ch03--ch04; `lem:segment`; and Steps 4--5 of
@@ -867,7 +862,7 @@ must pass its chip check, but the relation does not require each call to occur
 exactly once. Additional valid entries and duplicates are therefore allowed,
 as in the discussion following `eq:step-expanded`.
 
-The Issue 3 ISA has one representative class `hash`, so the fixed program also
+The ISA has one representative class `hash`, so the fixed program also
 supplies
 
     hashChipAt : Word → {keccak, poseidon}
@@ -912,7 +907,7 @@ The three chip predicates check every entry in their respective lists:
       := ∀ state ∈ B_range, φ_range(state).
 
 The first two predicates therefore cannot exchange Keccak and Poseidon entries,
-even though Issue 3 gives both operations the same representative `hash`
+even though the ISA gives both operations the same representative `hash`
 class.
 
 The complete transition, including the checks performed through the bus, is
@@ -930,7 +925,7 @@ This is proved first for `committedOperation` using the exact memory witness
 `w` recovered from the segment. A concrete VM then uses that same `w` to prove
 the `StepInterface.BusBridge` statement that a suitable witness exists; the
 non-recursive demonstration does so in
-`VMs/TwoStep/WithBus.lean`. The conclusion is therefore the existing Issue 3
+`VMs/TwoStep/WithBus.lean`. The conclusion is therefore the existing
 committed relation, not a second VM execution semantics.
 
 *Lean:* `Bus.BusState`, `Bus.HashCall`, `Bus.SegmentBus`, `Bus.StepAux`,
@@ -984,9 +979,9 @@ requires `C=C'` or `B=B'`.
 ### 5.3 Connecting separately extracted segments in the non-recursive VM
 
 The definitions and theorem in §§5.1--5.2 form the reusable segment-bus layer;
-they do not mention `TwoStep` or choose how segment proofs are combined. Issue 5
-also requires a bus-backed `ZkVM` and whole-execution demonstration, which are
-provided separately by `Bus.TwoStepSystem`. This separation lets the final
+they do not mention `TwoStep` or choose how segment proofs are combined. A bus-backed
+`ZkVM` and whole-execution demonstration are provided separately by
+`Bus.TwoStepSystem`. This separation lets the final
 recursive VanillaVM reuse `segment_extract` as its leaf result without taking a
 dependency on the non-recursive demonstration.
 
@@ -1032,7 +1027,7 @@ entry.
 
 ---
 
-## 7. Full Vanilla VM assembly (Issue 7)
+## 7. Full Vanilla VM assembly
 
 ### 7.1 Connecting segment proofs to recursion
 
@@ -1127,8 +1122,6 @@ of implications from the layer assumptions to trace extraction, but it does
 not formalize success probabilities or running times and therefore does not
 prove a concrete security level. The paper's `rem:idealized` also warns that
 its straight-line recursive extraction assumes an idealized relativized SNARK.
-Issue 6 is responsible for the explicit advantage bound; Issue 10 supplies the
-quantitative vocabulary.
 
 *Lean:* `VanillaVM.System.cte_main`.
 

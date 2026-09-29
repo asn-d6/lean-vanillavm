@@ -4,7 +4,7 @@ import VanillaZkVM.VMs.Memory
 import VanillaZkVM.VMs.Step
 
 /-!
-# Multi-layer recursion → `MultiStepVM` (Issue 4)
+# Multi-layer recursion → `MultiStepVM`
 
 The paper's recursion tower over an **abstract leaf SNARK**, replacing the flat
 two-layer merge in `TwoStep`. Three recursion layers — `convert` (1-to-1),
@@ -12,9 +12,9 @@ two-layer merge in `TwoStep`. Three recursion layers — `convert` (1-to-1),
 `ZkVM` instance whose CTE proof unrolls a binary tree of combine nodes.
 
 The leaf SNARK is abstract: its proof type and verifier are parameters, so the
-tower does not depend on the bus (Issue 5). The leaf *relation* is concrete —
+tower does not depend on the bus. The leaf *relation* is concrete —
 a segment of committed steps, each agreeing with the operation the fixed program
-selects (`ISA.System.committedOperation`, Issue 3).
+selects (`ISA.System.committedOperation`).
 
 ## Main definitions
 * `MultiStep.System` — the system parameters.
@@ -91,7 +91,7 @@ def toCommitted {VC : VectorCommitment} (S : FullVMState VC) : CommittedVMState 
 /-- The multi-step recursion system. The leaf SNARK is abstract: KS of the leaf
 gives a `SegWitness` (the intermediate committed states), keeping the recursion
 tower independent of the bus. The plain execution semantics are the fixed-program
-ISA of Issue 3, shared with `TwoStep`.
+ISA, shared with `TwoStep`.
 
 Paper: ch04 recursion tower, parameterized over an abstract leaf SNARK. -/
 structure System where
@@ -127,7 +127,7 @@ and defers to the embed SNARK.
 
 Paper: `def:cte` and `prop:memory-extractability` (ch05). The recursion tower
 stands where the two-step toy has a flat merge, over the same fixed-program ISA
-step; the bus (Issue 5) is omitted. -/
+step; the bus is omitted. -/
 def toZkVM : ZkVM where
   State := FullVMState sys.VC
   step := sys.isa.stepPlain
@@ -342,7 +342,7 @@ well-founded induction on `N`.
 
 Paper: `lem:combine` (ch04). The proof uses strong induction on `N`; the current
 qualitative statement does not count combine nodes. Quantitative `(m-1)`
-accounting is deferred to Issue 6. -/
+accounting is deferred. -/
 theorem combine_tree
     (El : Extractor sys.RLeaf sys.ASLeaf)
     (hEl : ∀ x p, sys.leafVerify x p → sys.RLeaf.rel x (El.extract x p))

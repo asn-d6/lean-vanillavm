@@ -39,7 +39,7 @@ address and value; all other classes preserve memory.
 
 Paper: `eq:phiop`, `eq:phi-read-decomp`, and `eq:phi-write-decomp` (ch01), and
 the operation taxonomy and `eq:step` (ch03), deliberately simplified to the
-five classes specified by Issue 3.
+five classes.
 -/
 
 namespace VanillaZkVM
@@ -53,8 +53,8 @@ namespace ISA
 represents arithmetic operations, and `bin` represents binary/bitwise
 operations. The separate bus layer can use the `hash` class to identify calls
 that must be checked by a hash chip. A value of this type identifies a class,
-not an exact decoded instruction. This is the intentional simplification
-required by Issue 3, not a complete RV32IM opcode enumeration.
+not an exact decoded instruction. This is an intentional simplification, not a
+complete RV32IM opcode enumeration.
 
 Paper: operation taxonomy in ch03, with the deliberate five-operation
 simplification documented in `docs/CORRESPONDENCE.md`. -/
