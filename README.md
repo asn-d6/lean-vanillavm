@@ -94,6 +94,7 @@ so even the paper's bounds validate reduction **structure**, not a concrete secu
 
 We are of course aware that this is far from being cryptographically accurate, and we may change this in the future.
 
+More details can be found in [IDEALIZATION.md](https://github.com/ethereum/recursion-topology-fv/blob/main/IDEALIZATION.md).
 
 
 ## Build
