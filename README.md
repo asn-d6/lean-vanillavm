@@ -1,98 +1,69 @@
 # recursion-topology-fv
 
-A Lean 4 / Mathlib formalization of the **Vanilla zkVM** and its main security result, ported from
-the Ethereum Foundation zkVM whitepaper example (`zkvm-whitepaper/sampleVM/`, chapters ch01–ch05).
-The goal is to formalize **correct-trace extractability (CTE)** — that an accepting final proof lets
-an extractor recover a full, valid execution trace — for a recursive zkVM with committed memory and
-a bus, reducing security to explicit cryptographic hardness assumptions.
+A Lean4 formalization of the overall recursive architecture of a modern zkVM.
 
-The paper is available as [`docs/vanillaVM.pdf`](docs/vanillaVM.pdf), from
-[`khovratovich/zkvm-ef-security-sprint`](https://github.com/khovratovich/zkvm-ef-security-sprint/blob/main/vanillaVM-W2/vanillaVM.pdf).
+This repo is the final piece of the puzzle to be able to utter end-to-end statements about zkVMs like:
+*"This zkVM has 128-bit provable security"*
 
-> **Status: WIP.** The current core is small, clean, and axiom-clean, but idealized (see
-> [Idealization](#idealization)).
+This repo, in the future, will take as input the intermediate SNARKs of the zkVM, as well as its topology, and any
+global arguments (related to state and memory accounting). For now, we are proving the security of a simplified
+*Vanilla zkVM*, documented in the included whitepaper (`docs/vanillaVM.pdf`)
 
----
+The goal for any zkVM is to prove its **correct-trace extractability (CTE)**: that an accepting final proof lets an
+extractor recover a full, valid execution trace of its execution. Reducing this way its security to explicit
+cryptographic hardness assumptions.
 
-## Current architecture
+> **Status: v1.** The VanillaVM security is proven but we are idealizing some parts of the proof (see
+> [Idealization](#idealization) below).
+> Todo for v2:
+>   - Figure out a better recursion axiomatization
+>   - Introduce adversary advantages and runtimes
 
-```
-VanillaZkVM/
-├── Preliminaries/                 generic cryptography — definitions only
-│   ├── ...
-├── Specification/                 what a zkVM is, and what it must prove
-│   ├── Zkvm.lean                    abstract ZkVM + TraceValid
-│   └── Cte.lean                     R*, CTE, and the keystone cte_iff_knowledgeSound
-└── VMs/                           concrete VM machinery and instances, one subdirectory per VM
-    ├── ...
-    └── VM1/
-        ├── ..
-```
-
-Dependencies point one way: **`Preliminaries/` → `Specification/` → `VMs/`.**
-
-**`Preliminaries/`** holds everything that does not mention a virtual machine: argument systems and
-what it means for one to be knowledge-sound, the memory and bus commitments with their binding
-properties, and a couple of generic helpers. Definitions only — the proofs that consume them live
-downstream.
-
-**`Specification/`** states what we are trying to prove, once and abstractly. A zkVM is a state type
-with a step relation, a step count, a type of private (prover-only) inputs, mappings to initial and
-terminal states that may depend on those inputs, a final verifier;
-it is *correct-trace extractable* when every accepting proof can be turned into a private input and a
-valid execution reaching the claimed final state. Deterministic VMs take the trivial private-input type.
-Crucially this layer knows nothing about memory commitments or instruction sets, which is what lets one
-definition serve every VM.
-
-**`VMs/`** holds the concrete machinery — VM states, the contract linking plain execution to
-committed-memory execution, and the reconstruction of full memory from committed memory — plus one
-subdirectory per concrete VM. Each such VM is an *instance* of the abstract zkVM above and proves
-correct-trace extractability for itself, rather than restating the definition.
-
-The concrete VM variants currently implemented are:
-
-- **TwoStep without a bus** ([`TwoStep.lean`](VanillaZkVM/VMs/TwoStep/TwoStep.lean)):
-  a deliberately minimal, non-recursive two-layer VM using the representative
-  five-class ISA.
-- **TwoStep with a bus** ([`WithBus.lean`](VanillaZkVM/VMs/TwoStep/WithBus.lean)):
-  the same two-layer proof structure, with separate step, Keccak, Poseidon, and
-  range proofs for each segment. Each segment keeps its own bus.
-- **MultiStep without a bus**
-  ([`MultiStep.lean`](VanillaZkVM/VMs/MultiStep/MultiStep.lean)): the recursive
-  convert/combine/embed proof structure over an abstract segment proof.
-- **Assembled Vanilla VM**
-  ([`VanillaVM.lean`](VanillaZkVM/VMs/VanillaVM/VanillaVM.lean)): the recursive
-  proof structure in which every base segment is checked through the segment
-  bus.
-- **Private-input wrapper**
-  ([`NonDeterministic/Wrapper.lean`](VanillaZkVM/VMs/NonDeterministic/Wrapper.lean)):
-  turns any of the above into a non-deterministic VM whose statement is only the
-  public part of the boundary states, by adding one outer proof layer whose
-  witness is the private input; CTE transfers from the wrapped VM.
-
-Concrete opcode semantics are still to come.
-
-Each `*Sanity.lean` file holds concrete models and countermodels witnessing that the definitions
-beside it are satisfiable and the theorems consuming them non-vacuous — kept separate so the
-definition files stay definitions-only.
-
-The segment-bus construction is described mathematically in
-[`docs/math-companion.md`](docs/math-companion.md).
+----
 
 ## Idealization
 
-The crypto layer is **perfect / probability-free**.
-Currently, cryptographic building blocks are idealized as *perfect* to simplify everything.
-For instance, collision-resistance is just defined as being injective; knowledge
-soundness is `∃ extractor, ∀ accepting (x,p), witness valid`. There is no security parameter, no `negl`, no running time yet.
-The paper itself flags a deeper caveat (`rem:idealized`): straight-line
-extraction composed across recursion layers needs "relativized" SNARKs, which provably don't exist,
-so even the paper's bounds validate reduction **structure**, not a concrete security level.
+The proof is idealized in two places:
 
-We are of course aware that this is far from being cryptographically accurate, and we may change this in the future.
+### Recursion: straight-line extraction composes
+
+Every SNARK layer is assumed to have a *straight-line* extractor: it extracts a valid witness off the pair
+`(statement, proof)`, without using rewinding or an oracle (`KnowledgeSound` in [`ArgumentSystem.lean`](VanillaZkVM/Preliminaries/ArgumentSystem.lean)).
+
+Hash-based SNARKs in reality only have such extractors in the random oracle model (ROM). However, recursion-based architectures cannot be examined in the ROM, as each layer's random oracle needs to beinstantiated in the circuit verifier.
+
+In this repo, we essentially take as input argument systems that are straight-line extractable in the ROM, and consider them to be straight-line extractable in the plain model.
+
+This is false and it's an axiom we want to improve in v2.
+
+### Perfect, probability-free crypto
+
+The crypto layer is **perfect / probability-free**.
+
+Currently, cryptographic building blocks are idealized as *perfect* to simplify everything.  For instance,
+collision-resistance is just defined as being injective; knowledge soundness is `∃ extractor, ∀ accepting (x,p),
+witness valid`. There is no security parameter, no `negl`, no running time yet.
+
+We plan to improve this in v2 by introducing adversary advantages, and explicit algorithm runtimes.
 
 More details can be found in [IDEALIZATION.md](https://github.com/ethereum/recursion-topology-fv/blob/main/IDEALIZATION.md).
 
+## Project layout
+
+**Library.** Generic code, shared by every VM.
+
+- `VanillaZkVM/Preliminaries/`: Generic cryptography, definitions only (argument systems, commitments, traces)
+- `VanillaZkVM/Specification/`: What a zkVM is and what it must prove (CTE)
+- `VanillaZkVM/VMs/*.lean`: Shared VM building blocks (state, memory, ISA, bus, step contract)
+- `VanillaZkVM/VMs/NonDeterministic/`: Generic wrapper that adds private input to any zkVM
+
+**Example VMs.**
+
+- `VanillaZkVM/VMs/TwoStep/`: Minimal two-layer VM, with and without a bus
+- `VanillaZkVM/VMs/MultiStep/`: Recursive multi-step VM resembling the VanillaVM recursion architecture
+- `VanillaZkVM/VMs/VanillaVM/`: The Vanilla VM of the whitepaper
+
+Dependencies should point one way: `Preliminaries/` → `Specification/` → `VMs/`.
 
 ## Build
 
@@ -104,9 +75,6 @@ lake build
 Requires the toolchain pinned in `lean-toolchain` and Mathlib `v4.32.0-rc1` (see `lakefile.toml`).
 Every PR must keep `lake build` green and satisfy `#print axioms` ⊆ `{propext, Classical.choice,
 Quot.sound}`.
-
-## Contributing
-TBD
 
 ## License
 
