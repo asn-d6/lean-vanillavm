@@ -1,6 +1,6 @@
 # recursion-topology-fv
 
-The goal of this repo is machine-checked claims like *"this zkVM provides 128-bit security."*
+The goal of this repo is machine-checked claims like *"this zkVM provides 128-bit security."* (we are not there yet)
 
 A zkVM splits execution into segments and joins their proofs into one final proof using recursion.  Sound individual
 proofs are not enough. The pieces must also agree: segment 2 must start where segment 1 ended, and the memory of the VM
@@ -32,7 +32,7 @@ accepts a proof, then a real execution exists behind it.**
 Let's break it down:
 
 A statement `x` claims "the VM goes from initial state A to final state B". CTE holds if there is an
-extractor `E`, such that for every statement `x` and every accepting proof `p`, `E` given (`x`, `p`) extracts:
+extractor `E`, such that for every statement `x` and every accepting proof `p`, `E` given `(x,p)`, extracts:
 - a valid trace: the list of intermediate VM states, step by step;
 - a private input, if the VM uses one.
 
