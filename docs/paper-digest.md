@@ -1,10 +1,8 @@
 # Vanilla zkVM whitepaper — structural digest for Lean formalization
 
-Source: the canonical files `sampleVM/ch00-overview.tex`,
-`ch01-execution-model.tex`, `ch02-segmentation.tex`,
-`ch03-correct-execution.tex`, `ch04-proof-architecture.tex`,
-`ch05-security.tex`, and `macros.tex`, at the revision pinned in
-`docs/PAPER_REVISION.md`. Notation follows the paper's macros:
+Source: [`vanillaVM.pdf`](vanillaVM.pdf), from
+[`khovratovich/zkvm-ef-security-sprint`](https://github.com/khovratovich/zkvm-ef-security-sprint/blob/main/vanillaVM-W2/vanillaVM.pdf).
+Notation follows the paper:
 `pc, regs, mem` (state components), `code`
 (program), `φ_op` (operation predicates), `B` (bus), `Ŝ` (committed state),
 `Com` (commitment), `R*`, `R_{0,*}`, `R_1..R_4` (relations), `Π_i` (SNARKs).

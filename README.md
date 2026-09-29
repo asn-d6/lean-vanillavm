@@ -6,12 +6,11 @@ The goal is to formalize **correct-trace extractability (CTE)** — that an acce
 an extractor recover a full, valid execution trace — for a recursive zkVM with committed memory and
 a bus, reducing security to explicit cryptographic hardness assumptions.
 
-The exact paper source used for review is pinned in
-[`docs/PAPER_REVISION.md`](docs/PAPER_REVISION.md); this matters because the default paper branch and
-its corrected `proof` revision currently differ on whether the step count `T` is adversary-chosen.
+The paper is available as [`docs/vanillaVM.pdf`](docs/vanillaVM.pdf), from
+[`khovratovich/zkvm-ef-security-sprint`](https://github.com/khovratovich/zkvm-ef-security-sprint/blob/main/vanillaVM-W2/vanillaVM.pdf).
 
 > **Status: WIP.** The current core is small, clean, and axiom-clean, but idealized (see
-> [Idealization](#idealization)). 
+> [Idealization](#idealization)).
 
 ---
 

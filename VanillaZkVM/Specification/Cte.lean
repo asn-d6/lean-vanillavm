@@ -47,7 +47,7 @@ def ASstar : ArgumentSystem V.Rstar where
 every accepting proof into a private input and a valid `T`-step execution of the
 claim under that private input.
 
-Paper: `def:cte` at the revision pinned in `docs/PAPER_REVISION.md`. This is its
+Paper: `def:cte` in `docs/vanillaVM.pdf`. This is its
 perfect, probability-free core: PPT/probability bookkeeping is out of scope (I8),
 and the full-memory boundary commitment equations belong to a concrete VM instance
 rather than to this abstract statement. The paper's extractor returns only the

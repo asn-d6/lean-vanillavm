@@ -41,9 +41,9 @@ The mappings `initial`/`terminal` map the statement (what the verifier sees) and
 the private input (what only the prover sees) to an initial and terminal state
 of the computation.
 
-This is abstract packaging, motivated by `def:zkvm` and corrected `def:cte` at the
-revision pinned in `docs/PAPER_REVISION.md`; a full formalization of `def:zkvm`
-is the job of a concrete VM instance, not of this record. At the pinned revision,
+This is abstract packaging, motivated by `def:zkvm` and `def:cte` in
+`docs/vanillaVM.pdf`; a full formalization of `def:zkvm`
+is the job of a concrete VM instance, not of this record. In the paper,
 program code and `T` are fixed system parameters rather than adversary outputs —
 which is why `T` is a field here. Code is absent because the abstract step
 predicate already closes over it.

@@ -165,13 +165,7 @@ memory is unchanged. The index and value types are parameters, so this same
 equation applies both to the memory types chosen by a commitment scheme and to
 the plain VM memory `Addr → Byte`.
 
-The pinned paper's `eq:phi-read-decomp` omits the explicit condition
-`S₂.mem = S₁.mem`, although `eq:mem-op-read` and ch03 say that a read does not
-change memory. This definition includes the condition so the intended read
-semantics are complete. The pending paper-side correction is recorded in
-`docs/PAPER_REVISION.md`.
-
-Paper: `eq:mem-op-read` and `eq:phi-read-decomp` (ch01). -/
+Paper: `eq:mem-op-read` and `eq:phi-read-decomp` (ch01) in `docs/vanillaVM.pdf`. -/
 def read {Index Value : Type} (memFreePred : MemFreePredicate) (addr : Index) (v : Value)
     (S₁ S₂ : VMStateWith (Index → Value)) : Prop :=
   memFreePred S₁.pc S₁.regs S₂.pc S₂.regs ∧ S₁.mem addr = v ∧ S₂.mem = S₁.mem

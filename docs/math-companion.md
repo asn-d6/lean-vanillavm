@@ -6,9 +6,7 @@ states it in ordinary mathematical notation with its paper citation, so a review
 compare **paper ↔ companion ↔ Lean** without reading proof internals. The companion,
 `docs/CORRESPONDENCE.md`, and the Lean must agree; a discrepancy is a review blocker.
 
-Paper: the canonical `zkvm-whitepaper/sampleVM/ch01-execution-model.tex` through
-`ch05-security.tex` at `a0f5e0b63395a2fddce3f949c4de1df9264a174b`; see
-`docs/PAPER_REVISION.md`. Anchors below cite chapters/labels.
+Paper: [`vanillaVM.pdf`](vanillaVM.pdf). Anchors below cite chapters/labels.
 
 ---
 
@@ -62,8 +60,8 @@ model has no security parameter; the paper's family may choose a polynomially
 bounded `T` as a system parameter for each security parameter.
 *Lean:* `ZkVM`.
 
-The fixed `T` follows the pinned correction to `def:cte`: program code and `T`
-are system parameters, while the adversary selects boundary states and a proof.
+In the paper, program code and `T` are system parameters, while the adversary
+selects boundary states and a proof.
 
 The private input generalizes the paper, whose zkVM is deterministic: its
 statement determines both boundary states outright. A **deterministic** VM takes
@@ -452,12 +450,6 @@ The write equation is the pointwise form of
 
 The read and write cases reuse `FullMemory.read` and `FullMemory.write`; they
 are not second copies of the memory equations.
-
-The pinned paper's `eq:phi-read-decomp` omits the explicit `mem₂=mem₁`
-condition, although `eq:mem-op-read` and ch03 say that a read does not change
-memory. The Lean definition makes that intended behavior explicit. The
-whitepaper's current `proof` branch makes the same correction in commit
-`aa33ed3`; updating the normative pin remains a human review decision.
 
 *Lean:* `ISA.System.operation`.
 

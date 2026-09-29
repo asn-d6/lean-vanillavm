@@ -17,8 +17,7 @@ date.
 **Rule (I1, CI-checked):** every declaration formalizing a paper notion has a docstring citing the
 paper label AND a row here; the named Lean declaration must actually elaborate (`#check`).
 
-**Normative paper revision:** `a0f5e0b63395a2fddce3f949c4de1df9264a174b` on the whitepaper's
-`proof` branch; see [`PAPER_REVISION.md`](PAPER_REVISION.md). In particular, `code` and `T` are
+**Paper:** [`vanillaVM.pdf`](vanillaVM.pdf). In particular, `code` and `T` are
 fixed system parameters in `def:cte`.
 
 This matrix remains **paper-item keyed**. Frozen Lean infrastructure that is not itself the
@@ -115,9 +114,7 @@ examples and checks that `stepPlain` can be used directly as `ZkVM.step`.
 The two-step VM now performs that assignment publicly and requires each
 committed `MemStep` to agree with the selected operation before reconstruction.
 The read clause also requires unchanged memory, as stated by `eq:mem-op-read`
-and the ch03 prose. The pinned `eq:phi-read-decomp` formula omits
-that explicit condition; whitepaper proof-branch commit `aa33ed3` corrects it.
-The affected fidelity review must account for this pending paper-pin update.
+and the ch03 prose.
 
 Human review must check more than elaboration: verify that the five classes are
 an explicit representative simplification; that every `operation` contains the

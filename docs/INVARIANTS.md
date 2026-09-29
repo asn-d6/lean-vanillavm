@@ -6,14 +6,12 @@ by at least one of Benedikt/Dmitry). Both humans and agents check work against t
 the invariant number (I1, I2, …) when a decision depends on it. Modeled on the `finality` repo's
 `INVARIANTS.md`.
 
-- **I1 — Ground truth is the paper.** The whitepaper's canonical Vanilla zkVM chapters
-  (`zkvm-whitepaper/sampleVM/ch01-execution-model.tex` through `ch05-security.tex`) are the
-  specification, at the exact revision recorded in
-  [`PAPER_REVISION.md`](PAPER_REVISION.md). Any Lean definition or theorem that formalizes a paper
-  notion must cite the exact paper label/section in its docstring and appear as a row in
+- **I1 — Ground truth is the paper.** The Vanilla zkVM paper in
+  [`vanillaVM.pdf`](vanillaVM.pdf) is the specification. Any Lean definition or theorem that
+  formalizes a paper notion must cite the exact paper label/section in its docstring and appear as a row in
   [`CORRESPONDENCE.md`](CORRESPONDENCE.md). Where the Lean deliberately differs from or generalizes
-  the paper, the difference is stated in the docstring, not left implicit. Retargeting the paper
-  revision requires re-checking the affected correspondence rows.
+  the paper, the difference is stated in the docstring, not left implicit. Updating the paper
+  requires re-checking the affected correspondence rows.
 
 - **I2 — Scope is fixed and only widened deliberately.** The scope test
   for any piece of work is: *does this serve the target CTE theorem for the full vanilla VM?*

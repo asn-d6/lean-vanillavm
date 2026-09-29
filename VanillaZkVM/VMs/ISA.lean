@@ -106,13 +106,10 @@ Every case checks that `code S₁.pc = op`. The read and write cases reuse
 arguments from the registers prescribed by the paper. The remaining cases
 combine their PC/register requirements with `S₂.mem = S₁.mem`.
 
-The read case therefore includes `S₂.mem = S₁.mem`. The pinned decomposition
-formula omits this explicit condition even though the paper says that reads do
-not change memory; `FullMemory.read` and `docs/PAPER_REVISION.md` explain the
-paper-side correction.
+The read case therefore includes `S₂.mem = S₁.mem`.
 
 Paper: `eq:phiop`, `eq:phi-read-decomp`, `eq:phi-write-decomp` (ch01), and the
-non-memory-operation equation immediately before `eq:step` (ch03). -/
+non-memory-operation equation immediately before `eq:step` (ch03) in `docs/vanillaVM.pdf`. -/
 def operation (op : OperationClass) (S₁ S₂ : VMStateWith (Index → Value)) : Prop :=
   isa.code S₁.pc = op ∧
     match op with

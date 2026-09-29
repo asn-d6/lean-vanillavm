@@ -44,8 +44,7 @@ so a memory-only instance needs no placeholder bus.
 
 This record only connects definitions shared by several Lean modules; it is
 not a new paper definition. Its fields line up with the layers around `eq:step-bus2`,
-`prop:memory-extractability`, and `lem:segment` in the pinned Vanilla zkVM paper
-revision. -/
+`prop:memory-extractability`, and `lem:segment` in `docs/vanillaVM.pdf`. -/
 structure StepInterface (V : ZkVM) where
   CommittedState : Type
   represents : CommittedState → V.State → Prop
