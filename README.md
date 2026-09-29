@@ -1,29 +1,52 @@
 # recursion-topology-fv
 
-A Lean4 formalization of the overall recursive architecture of a modern zkVM.
+The goal of this repo is machine-checked claims like *"this zkVM provides 128-bit security."*
 
-This repo is the final piece of the puzzle to be able to utter end-to-end statements about zkVMs like:
-*"This zkVM has 128-bit provable security"*
+A zkVM splits execution into segments and joins their proofs into one final proof using recursion.  Sound individual
+proofs are not enough. The pieces must also agree: segment 2 must start where segment 1 ended, and the memory of the VM
+must stay consistent. This project proves in Lean4 that all these pieces fit together.
 
-This repo, in the future, will take as input the intermediate SNARKs of the zkVM, as well as its topology, and any
-global arguments (related to state and memory accounting). For now, we are proving the security of a simplified
-*Vanilla zkVM*, documented in the included whitepaper (`docs/vanillaVM.pdf`)
+In our v1 release, we study the **VanillaVM**, a simplified recursion-based zkVM from our [whitepaper](docs/vanillaVM.pdf).
 
-The goal for any zkVM is to prove its **correct-trace extractability (CTE)**: that an accepting final proof lets an
-extractor recover a full, valid execution trace of its execution. Reducing this way its security to explicit
-cryptographic hardness assumptions.
+Our goal is to prove its **correct-trace extractability (CTE)**
+([`cte_main`](recursion-topology-fv/VMs/VanillaVM/VanillaVM.lean)):
+from any accepted final proof, we can extract a valid execution trace between the
+claimed initial and final states.
 
-> **Status: v1.** The VanillaVM security is proven but we are idealizing some parts of the proof (see
-> [Idealization](#idealization) below).
-> Todo for v2:
->   - Figure out a better recursion axiomatization
->   - Introduce adversary advantages and runtimes
+This effort corresponds to the [W3 deliverable](https://zkevm.ethereum.foundation/blog/cryptography-research-update) from our zkVM security sprint.
+
+> **Status (v1):** We prove VanillaVM security, but some parts of the proof are idealized.
+> See [IDEALIZATION.md](IDEALIZATION.md).
+>
+> Next steps for v2:
+> - A better model of recursive proof composition.
+> - Adversary success probabilities and running times.
 
 ----
 
-## Idealization
+## Correct-Trace Extractability
 
-Details can be found in [IDEALIZATION.md](https://github.com/ethereum/recursion-topology-fv/blob/main/IDEALIZATION.md).
+*Correct-Trace Extractability* (CTE) is the keystone security property we prove. It informally says: **if the verifier
+accepts a proof, then a real execution exists behind it.**
+
+Let's break it down:
+
+A statement `x` claims "the VM goes from initial state A to final state B". CTE holds if there is an
+extractor `E`, such that for every statement `x` and every accepting proof `p`, `E` given (`x`, `p`) extracts:
+- a valid trace: the list of intermediate VM states, step by step;
+- a private input, if the VM uses one.
+
+In Lean ([`Specification/Cte.lean`](recursion-topology-fv/Specification/Cte.lean)):
+
+```lean
+def CTE : Prop :=
+  ∃ E : V.Stmt → V.Proof → V.PrivInput × (ℕ → V.State),
+    ∀ (x : V.Stmt) (p : V.Proof), V.verify x p → V.TraceValid x (E x p).1 (E x p).2
+```
+
+This is essentially knowledge soundness for a relation that claims that a VM executed correctly (see `cte_iff_knowledgeSound`).
+
+In v1 our extractor is a plain function, with no probabilities or running times.
 
 ## Project layout
 
