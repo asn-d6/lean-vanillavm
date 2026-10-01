@@ -1,24 +1,19 @@
 # recursion-topology-fv
 
-The goal of this repo is machine-checked claims like *"this zkVM provides 128-bit security."* (we are not there yet)
+Our goal is an end-to-end claim about the security of zkVMs like *"this zkVM provides 128-bit security."* (we are not there yet)
 
-A zkVM splits execution into segments and joins their proofs into one final proof using recursion.  Sound individual
+Why is this hard: A zkVM splits execution into segments and uses recursion to joins the segment proofs into one final proof.  Sound individual
 proofs are not enough. The pieces must also agree: segment 2 must start where segment 1 ended, and the memory of the VM
 must stay consistent. This project proves in Lean4 that all these pieces fit together.
 
-In our v1 release, we study the **VanillaVM**, a simplified recursion-based zkVM from our [whitepaper](docs/vanillaVM.pdf).
-
-Our goal is to prove its **correct-trace extractability (CTE)**
-([`cte_main`](recursion-topology-fv/VMs/VanillaVM/VanillaVM.lean)):
-from any accepted final proof, we can extract a valid execution trace between the
-claimed initial and final states.
+In our v1 release, we study the [**VanillaVM**](./docs/vanillaVM.pdf), a simplified recursion-based zkVM.
 
 This effort corresponds to the [W3 deliverable](https://zkevm.ethereum.foundation/blog/cryptography-research-update) from our zkVM security sprint.
 
-> **Status (v1):** We prove VanillaVM security, but some parts of the proof are idealized.
+> **Status (v1):** We prove the security of VanillaVM, but some parts of the proof are idealized.
 > See [IDEALIZATION.md](IDEALIZATION.md).
 >
-> Next steps for v2:
+> TODO for v2:
 > - A better model of recursive proof composition.
 > - Adversary success probabilities and running times.
 
@@ -26,7 +21,7 @@ This effort corresponds to the [W3 deliverable](https://zkevm.ethereum.foundatio
 
 ## Correct-Trace Extractability
 
-*Correct-Trace Extractability* (CTE) is the keystone security property we prove. It informally says: **if the verifier
+*Correct-Trace Extractability* (CTE) is the keystone security property we prove about a zkVM. It informally says: **if the verifier
 accepts a proof, then a real execution exists behind it.**
 
 Let's break it down:
@@ -61,7 +56,7 @@ In v1 our extractor is a plain function, with no probabilities or running times.
 
 - `recursion-topology-fv/VMs/TwoStep/`: Minimal two-layer VM, with and without a bus
 - `recursion-topology-fv/VMs/MultiStep/`: Recursive multi-step VM resembling the VanillaVM recursion architecture
-- `recursion-topology-fv/VMs/VanillaVM/`: The Vanilla VM of the whitepaper
+- `recursion-topology-fv/VMs/VanillaVM/`: The [VanillaVM](./docs/vanillaVM.pdf)
 
 Dependencies should point one way: `Preliminaries/` → `Specification/` → `VMs/`.
 
