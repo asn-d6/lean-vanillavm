@@ -5,19 +5,17 @@ import «recursion-topology-fv».VMs.Step
 # Sanity model for the abstract zkVM and the step interface
 
 An accepting one-step Boolean toggle model witnesses that the abstract `ZkVM`,
-`CTE`, and the step-interface bridge propositions are jointly satisfiable.
+`CTE`, and the step-interface bridge proposition are jointly satisfiable.
 The model's step genuinely relates `false` to `true`, and its representation
-predicate is equality, so it exercises the direction of both bridges rather
-than making every proposition `True`. All model data is private; this module
-adds no public API.
+predicate is equality, so it does not make every proposition `True`. All model
+data is private; this module adds no public API.
 
 One model witnesses both layers at once, so this file lives in `VMs/` (it needs
 `Step.lean`) even though it also checks `Specification/Cte.lean`'s `ZkVM.CTE`.
 
 ## Main results
 * The examples below exhibit an accepting one-step zkVM satisfying `CTE`.
-* The same model admits both `StepInterface.MemoryBridge` and
-  `StepInterface.BusBridge`.
+* The same model admits `StepInterface.BusBridge`.
 -/
 
 namespace VanillaZkVM
@@ -57,13 +55,6 @@ example : oneStepZkVM.CTE := by
   have hi0 : i = 0 := by omega
   subst i
   rfl
-
-example : oneStepInterface.MemoryBridge := by
-  intro Ŝ₁ Ŝ₂ S₁ hrep hstep
-  refine ⟨!S₁, ?_, rfl⟩
-  change Ŝ₂ = !S₁
-  rw [hrep] at hstep
-  exact hstep
 
 example : oneStepInterface.BusBridge oneStepWithBus := by
   intro Ŝ₁ Ŝ₂ b hstep

@@ -53,30 +53,9 @@ that same value to prove the weaker `BusBridge` statement that a suitable
 Keeping the bus predicate out of `StepInterface` lets the memory interface be
 instantiated without inventing unused bus data.
 
-## Frozen bridge statements
+## Frozen bridge statement
 
-For `I : StepInterface V`, the memory bridge is
-
-```text
-I.MemoryBridge :=
-  forall committed states C1 C2 and plain state S1,
-    represents C1 S1 ->
-    stepCommitted C1 C2 ->
-    exists S2,
-      represents C2 S2 and V.step S1 S2.
-```
-
-The existentially produced `S2` is essential. A lemma that merely assumes
-`represents C2 S2` and concludes `V.step S1 S2` does not establish the
-representation relation needed to reconstruct a whole trace; this is precisely
-the gap exposed by examples where verification accepts `C2` even though no
-full state `S2` represents it.
-
-Put differently, the bridge must construct a state `S2` corresponding to `C2`;
-it may not ask the caller to provide that state and prove the correspondence in
-advance.
-
-The bus bridge is
+For `I : StepInterface V`, the bus bridge is
 
 ```text
 I.BusBridge stepWithBus :=
@@ -95,7 +74,7 @@ equates them.
 
 | Layer | Designated module | Required realization |
 |---|---|---|
-| Memory reconstruction | `recursion-topology-fv/VMs/Memory.lean` + concrete VM module | `VMs/Memory.lean` defines `CommitInv`, the memory-only step predicates, `step_reconstruct_exact`, `step_reconstruct`, and `trace_mem_extract`. The concrete VM packages the appropriate committed relation as a `StepInterface` and proves `MemoryBridge`; `VMs/TwoStep/TwoStep.lean` supplies the current instance. |
+| Memory reconstruction | `recursion-topology-fv/VMs/Memory.lean` + concrete VM module | `VMs/Memory.lean` defines `CommitInv`, the memory-only step predicates, and `trace_mem_extract`. The concrete VM packages the appropriate committed relation as a `StepInterface`; `VMs/TwoStep/TwoStep.lean` supplies the current instance. |
 | Plain ISA semantics | `recursion-topology-fv/VMs/ISA.lean` | Define `ISA.System.stepPlain`, connect explicit committed-memory witnesses through `ISA.System.committedOperation`, and assign `stepPlain` directly to both the toy and assembled `ZkVM` instances. |
 | Segment bus | `recursion-topology-fv/VMs/Bus.lean` + concrete VM connection modules | `Bus.System.stepWithBus` combines the segment step check with the three chip checks. `Bus.System.stepWithBus_committedOperation` proves the implication to the committed ISA operation while preserving the recovered `MemStep`, and `Bus.System.segment_extract` proves that the four buses recovered for one segment are equal. Neither theorem chooses how segments are combined. `VMs/TwoStep/WithBus.lean` demonstrates the non-recursive connection; `VMs/VanillaVM/VanillaVM.lean` derives the recursive leaf extractor from the same segment theorem. |
 

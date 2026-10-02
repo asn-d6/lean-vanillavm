@@ -61,33 +61,4 @@ def UpdateBinding (VC : VectorCommitment) : Prop :=
 
 end VectorCommitment
 
-/-! ## Witness structure for a break of update-binding: -/
-
-/-- The data needed to describe a possible update-binding failure: the memory
-before and after one write, the changed address and value, and the candidate
-commitment and opening proof accepted for that write.
-
-`IsUpdateBindingBreak` below states that the memories differ only by the stated
-write and that the proof verifies against both commitments, even though the
-candidate commitment is not `VC.commit` of the updated memory. An explicit
-extract-or-break reduction can return this record when reconstruction fails. -/
-structure UpdateBindingBreak (VC : VectorCommitment) where
-  preMemory : VC.Index → VC.Value
-  postMemory : VC.Index → VC.Value
-  index : VC.Index
-  newValue : VC.Value
-  postCommitment : VC.Com
-  proof : VC.OpenProof
-
-/-- `IsUpdateBindingBreak VC b` holds when `b` describes a valid one-address
-update whose proof is accepted, but whose candidate commitment is not the
-commitment of the resulting memory. -/
-def IsUpdateBindingBreak (VC : VectorCommitment)
-    (b : UpdateBindingBreak VC) : Prop :=
-  b.postMemory b.index = b.newValue ∧
-  (∀ j, j ≠ b.index → b.postMemory j = b.preMemory j) ∧
-  VC.verify (VC.commit b.preMemory) b.index (b.preMemory b.index) b.proof ∧
-  VC.verify b.postCommitment b.index b.newValue b.proof ∧
-  b.postCommitment ≠ VC.commit b.postMemory
-
 end VanillaZkVM

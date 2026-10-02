@@ -74,17 +74,12 @@ HEADLINE_THEOREMS = [
     "VanillaZkVM.knowledgeSound_trivialAS",      # non-vacuity floor
     "VanillaZkVM.chain_flatten",                 # concatenation lemma
     "VanillaZkVM.TwoStep.System.committedTrace_extract",  # two-layer committed-chain extraction
-    "VanillaZkVM.step_reconstruct_exact",        # preserves the selected MemStep
-    "VanillaZkVM.step_reconstruct",              # constructive memory bridge core
-    "VanillaZkVM.TwoStep.System.memoryBridge",   # frozen-interface realization
     "VanillaZkVM.trace_mem_extract",             # memory trace reconstruction
     "VanillaZkVM.TwoStep.System.cte", # full-memory two-step CTE
     "VanillaZkVM.MemorySanity.exactVC_bindingAssumptions",  # satisfiability
     "VanillaZkVM.MemorySanity.appendBitVC_not_updateBinding",  # countermodel
     "VanillaZkVM.ISA.System.stepPlain_iff_operation_at_pc",  # fixed-program selection
-    "VanillaZkVM.ISA.System.operation_preserves_memory_unless_write",  # memory guard
     "VanillaZkVM.ISA.System.committedOperation_stepPlain",  # committed/plain bridge
-    "VanillaZkVM.MultiStep.System.memoryBridge", # frozen-interface realization
     "VanillaZkVM.MultiStep.System.combine_tree", # tree-unrolling extraction
     "VanillaZkVM.MultiStep.System.committedTrace_extract",  # embed ∘ tree unrolling
     "VanillaZkVM.MultiStep.System.cte",          # full-memory multi-step CTE

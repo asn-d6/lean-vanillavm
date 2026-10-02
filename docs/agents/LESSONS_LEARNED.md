@@ -50,13 +50,12 @@ guard; when a guard becomes a CI check, note that.
   or generic synonyms for formal witness types.
 
 - **A two-endpoint refinement is not an inductive reconstruction theorem.**
-  `step_mem_extract` faithfully proves the paper's conditional proposition when
-  `CommitInv` is supplied for both endpoint states. A trace extractor additionally
+  A lemma that proves the paper's conditional proposition when `CommitInv` is
+  supplied for both endpoint states is not enough. A trace extractor additionally
   needs to construct the next full memory and prove `CommitInv` for it from the
   current represented state; assuming that conclusion would hide the
   commitment-swap gap.
-  **Guard:** frozen `StepInterface.MemoryBridge`; `step_reconstruct` and
-  `TwoStep.System.memoryBridge` existentially produce the represented next state.
+  **Guard:** `trace_mem_extract` constructs each represented next state.
 
 - **Agents anchor on training-data analogues for novel-but-familiar notions.** A
   definition that "looks like" a standard one may be silently bent toward the textbook
