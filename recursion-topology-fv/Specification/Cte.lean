@@ -37,7 +37,8 @@ variable (V : ZkVM)
 
 `(x, (w, tr)) ∈ R*` iff `tr` is a valid trace from the start state to the end state.
 
-Unlike the paper, the witness includes private input `w`. This is meant to model non-deterministic zkVMs. -/
+Unlike the paper, the witness includes private input `w`. This is meant to model
+non-deterministic zkVMs. -/
 def Rstar : Relation where
   Stmt := V.Stmt
   Wit := V.PrivInput × (ℕ → V.State)
@@ -48,8 +49,8 @@ def ASstar : ArgumentSystem V.Rstar where
   Proof := V.Proof
   verify := V.verify
 
-/-- **Correct-trace extractability**: an extractor turns every accepting proof into a private input and a valid `T`-step execution of the
-claim under that private input. -/
+/-- **Correct-trace extractability**: an extractor turns every accepting proof into a private input
+and a valid `T`-step execution of the claim under that private input. -/
 def CTE : Prop :=
   ∃ E : V.Stmt → V.Proof → V.PrivInput × (ℕ → V.State),
     ∀ (x : V.Stmt) (p : V.Proof), V.verify x p → V.TraceValid x (E x p).1 (E x p).2

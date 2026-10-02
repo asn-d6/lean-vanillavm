@@ -38,17 +38,12 @@ Paper: the zkVM construction in ch03--ch04 and `thm:main` in ch05.
 namespace VanillaZkVM
 namespace VanillaVM
 
-/-- The assembled Vanilla VM system for the project's probability-free model.
-
-`segment` contains the bus commitment and the segment/inner proof systems.
-The remaining fields contain the convert, combine, and embed proof systems.
-Their statements use the same memory commitment, segment length, and fixed ISA
-as `segment` by construction.
-
+/-- The assembled Vanilla VM system, in the probability-free model.
 Paper: `def:zkvm` (ch05), with the proof systems `Π_0` through `Π_4`. -/
 structure System where
   /-- The fixed program, memory and bus commitments, and proof systems for one
-  segment. -/
+  segment. The other proof systems use the same memory commitment, segment length,
+  and ISA. -/
   segment : Bus.System
   /-- Total number of VM steps in the complete execution. -/
   T : ℕ
@@ -107,21 +102,13 @@ verifier.
 Paper: the concrete zkVM and boundary commitments used by `thm:main` (ch05). -/
 def toZkVM : ZkVM := sys.toMultiStep.toZkVM
 
-/-- Every cryptographic fact that `cte_main` takes as an assumption rather than
-proving in this file.
-
-`segment` contains collision resistance of the bus commitment and knowledge
-soundness of the segment proof and its four inner proofs. The next three fields
-cover the recursive proof layers. The final three fields are the memory
-commitment properties needed to reconstruct full memory.
-
-There is no separate assumption that the base segment proof can be extracted:
-`leaf_sound` below derives this from `segment`.
-
-Paper: the assumptions charged by `thm:main` (ch05), in the perfect model. -/
+/-- The cryptographic assumptions of `cte_main`.
+Paper: the assumptions of `thm:main` (ch05), in the perfect model. -/
 structure Assumptions (sys : System) : Prop where
   /-- The assumptions needed to extract a valid trace and one common bus from
-  an accepted segment proof. -/
+  an accepted segment proof: collision resistance of the bus commitment and knowledge
+  soundness of the segment proof and its four inner proofs. `leaf_sound` derives
+  segment extraction from this, so there is no separate assumption for it. -/
   segment : sys.segment.Assumptions
   /-- An accepted convert proof reveals the segment proof that it wraps. -/
   convertSound : KnowledgeSound sys.toMultiStep.ASConvert

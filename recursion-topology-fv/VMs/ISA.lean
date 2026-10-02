@@ -64,31 +64,23 @@ inductive OperationClass where
   | bin
   deriving DecidableEq, Repr
 
-/-- The parameters needed to interpret the five operation classes.
-
-`code` is the class-level view of the fixed program: it records which of the
-five cases applies at each program counter. `memFreePred` contains the remaining
-PC/register requirements for that class and may use the program counter to
-distinguish instructions within it. The definition `operation` combines these
-requirements with the class check and the appropriate memory equation. For a
-read or write, `memFreePred` must also enforce any required address bounds,
-because those bounds depend only on registers.
-
-`Index` and `Value` are parameters so this ISA works both with the paper's
-ordinary `Addr → Byte` memory and with the address and value types chosen by a
-commitment scheme. `indexOfWord` and `valueOfWord` state explicitly how a
-machine word is interpreted as one of those addresses or values. For the
-paper's current `ℕ`-based types, both functions are simply the identity.
+/-- The parameters that interpret the five operation classes. `Index` and `Value` are the memory
+types: the paper's `Addr → Byte`, or the types of a commitment scheme.
 
 Paper: `eq:phiop` and the `φ'_op` decomposition in ch01/ch03. -/
 structure System (Index Value : Type) where
-  /-- The operation class of the instruction at each program counter. -/
+  /-- The operation class of the instruction at each program counter. A class-level view of the
+  fixed program. -/
   code : Word → OperationClass
-  /-- The PC/register requirements `φ'_op` for each operation class. -/
+  /-- The PC/register requirements `φ'_op` for each operation class. It can use the program
+  counter to tell instructions in a class apart. For read and write, it must also enforce the
+  address bounds. `operation` adds the class check and the memory equation. -/
   memFreePred : OperationClass → MemFreePredicate
-  /-- Interpret the address register as an index in this system's memory. -/
+  /-- Interpret the address register as an index in this system's memory. Identity for the
+  paper's `ℕ`-based types. -/
   indexOfWord : Word → Index
-  /-- Interpret a register word as a value in this system's memory. -/
+  /-- Interpret a register word as a value in this system's memory. Identity for the paper's
+  `ℕ`-based types. -/
   valueOfWord : Word → Value
 
 namespace System

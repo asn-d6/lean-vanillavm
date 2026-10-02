@@ -41,19 +41,16 @@ namespace Bus
 
 /-! ## Connecting the bus system to the two-layer VM -/
 
-/-- A reusable bus-backed segment proof together with a final proof that joins
-`m` such segments.
-
-`segment` contains only the one-segment bus definitions and verifiers. The
-additional fields here are needed only by the non-recursive demonstration VM;
-a recursive VM can consume `segment` without them.
-
-Paper: the non-recursive specialization of the segment chaining in Steps 4--5 of
-`thm:main` (ch05). -/
+/-- A bus-backed segment proof and a final proof that joins `m` segments.
+Paper: the non-recursive form of Steps 4--5 of `thm:main` (ch05). -/
 structure TwoStepSystem where
+  /-- The one-segment bus system. A recursive VM can use it without the other fields. -/
   segment : Bus.System
+  /-- The number of segments. -/
   m : ℕ
+  /-- The final proof. -/
   FinalProof : Type
+  /-- The final verifier. -/
   finalVerify : TwoStep.FinalStmt segment.VC → FinalProof → Prop
 
 namespace TwoStepSystem
@@ -76,21 +73,12 @@ def toTwoStep : TwoStep.System where
   FinalProof := sys.FinalProof
   finalVerify := sys.finalVerify
 
-/-- The assumptions used by the non-recursive execution theorem: all
-one-segment bus assumptions, knowledge soundness of the final proof that joins
-the segment proofs, and the memory-commitment properties needed to reconstruct
-the complete memory.
-
-`sys.toTwoStep.Assumptions` is enough to extract an ordinary TwoStep trace, but
-not enough for `execution_extract`: its segment extractor returns only states
-and memory witnesses. `execution_extract` must also return each segment's bus,
-which requires `sys.segment.Assumptions`.
-
-Paper: `lem:segment` and the final-proof extraction in Steps 1--5 of
-`thm:main`, restricted to the two-layer arrangement. -/
+/-- The assumptions of the non-recursive execution theorem.
+Paper: `lem:segment` and Steps 1--5 of `thm:main`, for two layers. -/
 structure Assumptions (sys : TwoStepSystem) : Prop where
   /-- The assumptions needed to extract each accepted segment proof and check
-  its bus. -/
+  its bus. `sys.toTwoStep.Assumptions` is not enough: its segment extractor does
+  not return the bus. -/
   segment : sys.segment.Assumptions
   /-- An accepted final proof reveals the segment boundary states and proofs. -/
   finalSound : KnowledgeSound sys.toTwoStep.ASFinal
@@ -117,13 +105,12 @@ theorem busBridge :
 
 /-! ## Applying the segment theorem across one complete execution -/
 
-/-- Information recovered from a complete non-recursive proof: the committed boundary
-state between adjacent segments and one independently recovered bus/state
-trace for every segment.
-
-Paper: the segment outputs retained in Steps 4--5 of `thm:main` (ch05). -/
+/-- What we recover from a complete non-recursive proof.
+Paper: the segment outputs of Steps 4--5 of `thm:main` (ch05). -/
 structure Execution (sys : TwoStepSystem) where
+  /-- The committed boundary states between segments. -/
   boundary : ℕ → CommittedVMState sys.segment.VC
+  /-- One bus/state trace per segment, each recovered independently. -/
   segments : ℕ → SegmentTrace sys.segment.VC
 
 /-- Join the recovered segment state traces. Bus data stays in `segments`; only

@@ -42,44 +42,48 @@ namespace MultiStep
 
 /-! ## Data types -/
 
-/-- Segment witness: intermediate committed states and one `MemStep` per
-transition. Same shape as `TwoStep.SegWitness`; the two VMs are kept
-independent, so each declares its own. -/
+/-- Segment witness. Same shape as `TwoStep.SegWitness`; each VM declares its own. -/
 structure SegWitness (VC : VectorCommitment) where
+  /-- The committed states. -/
   states : ℕ → CommittedVMState VC
+  /-- One `MemStep` per transition. -/
   steps : ℕ → MemStep VC
 
-/-- Statement carrying committed boundary states and a step count. Used by the
-leaf, convert, and combine relations. -/
+/-- Statement of the leaf, convert, and combine relations. -/
 structure RecStmt (VC : VectorCommitment) where
+  /-- The committed start state. -/
   S0 : CommittedVMState VC
+  /-- The committed end state. -/
   SN : CommittedVMState VC
+  /-- The number of steps from `S0` to `SN`. -/
   N : ℕ
 
-/-- Statement for the embed layer: boundary states only (`T` is a fixed system
-parameter).
-
-Paper: `R_4` statement in ch04. -/
+/-- Statement of the embed layer. It has no step count, because `T` is a fixed system
+parameter. Paper: `R_4` statement in ch04. -/
 structure EmbedStmt (VC : VectorCommitment) where
+  /-- The committed start state. -/
   S0 : CommittedVMState VC
+  /-- The committed end state. -/
   ST : CommittedVMState VC
 
-/-- Witness for the combine relation: left and right proofs (each from either
-convert or combine), the midpoint state, and the child step counts.
-
-Paper: `R_3` witness in ch04. -/
+/-- Witness of the combine relation. Paper: `R_3` witness in ch04. -/
 structure CombineWitness (VC : VectorCommitment) (ConvertProof CombineProof : Type) where
+  /-- The left child proof, from convert or combine. -/
   proofL : ConvertProof ⊕ CombineProof
+  /-- The right child proof, from convert or combine. -/
   proofR : ConvertProof ⊕ CombineProof
+  /-- The committed state between the two children. -/
   Smid : CommittedVMState VC
+  /-- The step count of the left child. -/
   NL : ℕ
+  /-- The step count of the right child. -/
   NR : ℕ
 
-/-- Boundary statement: initial and final *full-memory* states.
-
-Paper: full-state boundaries in `def:cte` (ch05). -/
+/-- The `Stmt` of the zkVM. Paper: full-state boundaries in `def:cte` (ch05). -/
 structure FinalStmtFull (VC : VectorCommitment) where
+  /-- The full start state. -/
   S0 : FullVMState VC
+  /-- The full end state. -/
   ST : FullVMState VC
 
 /-- Commit a full state's memory, yielding the corresponding committed state. -/
@@ -88,28 +92,40 @@ def toCommitted {VC : VectorCommitment} (S : FullVMState VC) : CommittedVMState 
 
 /-! ## System -/
 
-/-- The multi-step recursion system. The leaf SNARK is abstract: KS of the leaf
-gives a `SegWitness` (the intermediate committed states), keeping the recursion
-tower independent of the bus. The plain execution semantics are the fixed-program
-ISA, shared with `TwoStep`.
-
-Paper: ch04 recursion tower, parameterized over an abstract leaf SNARK. -/
+/-- The multi-step recursion system. Paper: ch04 recursion tower, with an abstract leaf
+SNARK. -/
 structure System where
+  /-- The memory commitment scheme. -/
   VC : VectorCommitment
+  /-- The number of steps in one segment. -/
   Nseg : ℕ
+  /-- The total number of steps. -/
   T : ℕ
-  /-- The fixed program and its plain/committed operation predicates. -/
+  /-- The fixed program and its plain/committed operation predicates. Shared with
+  `TwoStep`. -/
   isa : ISA.System VC.Index VC.Value
+  /-- A segment has at least one step. -/
   hNseg : 0 < Nseg
+  /-- `T` is a whole number of segments. -/
   hDvd : Nseg ∣ T
+  /-- There are at least two segments. -/
   hT : T ≥ 2 * Nseg
+  /-- The leaf proof. -/
   LeafProof : Type
+  /-- The leaf verifier. It is abstract: knowledge soundness gives a `SegWitness`, so the
+  recursion tower does not depend on the bus. -/
   leafVerify : RecStmt VC → LeafProof → Prop
+  /-- The convert proof. -/
   ConvertProof : Type
+  /-- The convert verifier. -/
   convertVerify : RecStmt VC → ConvertProof → Prop
+  /-- The combine proof. -/
   CombineProof : Type
+  /-- The combine verifier. -/
   combineVerify : RecStmt VC → CombineProof → Prop
+  /-- The embed (final) proof. -/
   EmbedProof : Type
+  /-- The embed (final) verifier. -/
   embedVerify : EmbedStmt VC → EmbedProof → Prop
 
 namespace System
@@ -216,17 +232,8 @@ def ASEmbed : ArgumentSystem sys.REmbed where
 
 /-! ## Assumptions -/
 
-/-- **Assumptions for the recursive zkVM.** This structure collects knowledge
-soundness of the four proof systems and the three memory-commitment properties
-used by the full-memory CTE theorem. Keeping them together makes every
-cryptographic assumption of `cte` visible in one argument.
-
-The segment length, divisibility, total-step bound, and fixed program are
-ordinary system parameters rather than security assumptions, so they remain in
-`System`.
-
-Paper: `lem:convert`/`lem:combine`/`lem:embed` (ch04),
-`prop:memory-extractability`, and the assumptions charged in `thm:main` (ch05). -/
+/-- The cryptographic assumptions of `cte` for the recursive zkVM. Paper:
+`lem:convert`/`lem:combine`/`lem:embed` (ch04), `prop:memory-extractability`, `thm:main` (ch05). -/
 structure Assumptions (sys : System) : Prop where
   /-- Knowledge soundness of the leaf/segment SNARK `Π_leaf`. -/
   ksLeaf : KnowledgeSound sys.ASLeaf

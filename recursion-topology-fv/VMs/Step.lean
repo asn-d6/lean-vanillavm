@@ -26,24 +26,18 @@ that the two-layer VM has a suitable memory witness. See
 
 namespace VanillaZkVM
 
-/-- The small interface connecting an abstract zkVM's plain step predicate to
-its committed-memory layer.
+/-- Connects the plain step `V.step` of a zkVM to its committed-memory layer.
 
-`V.step` is the one plain step predicate, taken from the `ZkVM` itself so that
-no module declares a different, unrelated execution rule.
-`represents Ŝ S` records that committed state `Ŝ` represents plain state `S`.
-`stepCommitted` takes only its
-two endpoint states. If an implementation also needs operation data or an
-opening proof, it fills this field with a proposition saying that such data
-exists. The bus predicate is *not* a field here but a parameter of `BusBridge`,
-so a memory-only instance needs no placeholder bus.
-
-This record only connects definitions shared by several Lean modules; it is
-not a new paper definition. Its fields line up with the layers around `eq:step-bus2`,
-`prop:memory-extractability`, and `lem:segment` in `docs/vanillaVM.pdf`. -/
+Not a paper definition. It is shared Lean glue for `eq:step-bus2`,
+`prop:memory-extractability` and `lem:segment`. -/
 structure StepInterface (V : ZkVM) where
+  /-- A state with memory replaced by a commitment. -/
   CommittedState : Type
+  /-- `represents Ŝ S` means committed state `Ŝ` represents plain state `S`. -/
   represents : CommittedState → V.State → Prop
+  /-- One committed step, from its two end states only. If the step needs operation data or an
+  opening proof, this proposition says that such data exists. The bus is not a field: it is a
+  parameter of `BusBridge`, so a memory-only instance needs no bus. -/
   stepCommitted : CommittedState → CommittedState → Prop
 
 namespace StepInterface

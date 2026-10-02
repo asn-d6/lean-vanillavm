@@ -3,9 +3,10 @@ import Mathlib
 /-!
 # Trace concatenation
 
-VMs split one long run into `m` *segments* of `Nseg` steps each, and prove each segment separately. This file
-shows that we can glue the segments back into one valid trace, if each segment ends at the state where the next one
-starts. `step` is a parameter, so the lemma works for every VM.
+VMs split one long run into `m` *segments* of `Nseg` steps each, and prove each segment
+separately. This file shows that we can glue the segments back into one valid trace, if each
+segment ends at the state where the next one starts. `step` is a parameter, so the lemma works for
+every VM.
 
 ## Main definitions / results
 * `concatTrace` — glue `m` segments of length `Nseg` into one length-`m * Nseg` trace.

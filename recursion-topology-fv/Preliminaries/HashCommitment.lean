@@ -3,9 +3,9 @@ import Mathlib
 /-!
 # A collision-resistant commitment
 
-A hash-based commitment, kept separate from the vector commitment in `VectorCommitment.lean` because the two layers are
-independent. For example, memory reconstruction consumes only the vector-commitment binding notions, while the bus consumes only
-collision-resistance.
+A hash-based commitment, kept separate from the vector commitment in `VectorCommitment.lean`
+because the two layers are independent. For example, memory reconstruction consumes only the
+vector-commitment binding notions, while the bus consumes only collision-resistance.
 
 The notion is idealized as plain injectivity. See `IDEALIZATION.md`.
 
@@ -21,8 +21,11 @@ namespace VanillaZkVM
 
 Paper: `def:bus-cr`. -/
 structure HashCommitment where
+  /-- The type of hashed values. -/
   Domain : Type
+  /-- The digest type. -/
   Digest : Type
+  /-- The hash function. -/
   hash : Domain → Digest
 
 /-- **Collision-resistance**: the commitment map is injective.

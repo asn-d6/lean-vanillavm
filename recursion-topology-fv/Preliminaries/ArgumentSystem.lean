@@ -3,7 +3,8 @@ import Mathlib
 /-!
 # Relations and argument systems
 
-Scheme-independent definitions: relations, non-interactive arguments, and straight-line knowledge soundness.
+Scheme-independent definitions: relations, non-interactive arguments, and straight-line knowledge
+soundness.
 
 * `Relation` — a statement/witness relation.
 * `ArgumentSystem` — a non-interactive argument
@@ -25,26 +26,28 @@ namespace VanillaZkVM
       KnowledgeSound AS     -- every accepting proof for AS extracts
 -/
 
-/-- A relation `R ⊆ Stmt × Wit`, given by its statement and witness types and a
-membership predicate. We write `R.rel x w` for "`(x; w) ∈ R`". -/
+/-- A relation `R ⊆ Stmt × Wit`. -/
 structure Relation where
+  /-- The statement type. -/
   Stmt : Type
+  /-- The witness type. -/
   Wit : Type
+  /-- `rel x w` means `(x; w) ∈ R`. -/
   rel : Stmt → Wit → Prop
 
-/-- A non-interactive argument system for a relation `R`, given by its proof type
-and verifier. `verify` is morally a Boolean polynomial-time algorithm; we phrase
-acceptance as a `Prop`, reading `verify x p` as "`Verify(x, p) = 1`".
+/-- A non-interactive argument system for a relation `R`.
 
-Paper: `def:zkvm` writes each system as `Π = (Prove, Verify)`. Lean deliberately
-omits `Prove`, which plays no role in the soundness statements formalized here. -/
+Paper: `def:zkvm` writes `Π = (Prove, Verify)`. Lean omits `Prove`, because soundness does not
+use it. -/
 structure ArgumentSystem (R : Relation) where
+  /-- The proof type. -/
   Proof : Type
+  /-- `verify x p` means `Verify(x, p) = 1`. A `Prop` here, representing a Boolean algorithm. -/
   verify : R.Stmt → Proof → Prop
 
-/-- A straight-line extractor for `AS`: it maps a statement and a proof to a
-candidate witness, without rewinding or reading the adversary's code. -/
+/-- A straight-line extractor for `AS`: no rewinding, no access to the adversary's code. -/
 structure Extractor (R : Relation) (AS : ArgumentSystem R) where
+  /-- Map a statement and a proof to a candidate witness. -/
   extract : R.Stmt → AS.Proof → R.Wit
 
 /-- `AS` is **knowledge-sound** (perfect straight-line extraction) if there is a

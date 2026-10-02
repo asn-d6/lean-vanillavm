@@ -10,18 +10,23 @@ Binding notions are idealized. See `IDEALIZATION.md`.
 
 namespace VanillaZkVM
 
-/-- A vector commitment scheme `Com = (Commit, Open, Verify)`. A vector is a
-total map `Index → Value`. `verify C i v p` checks that position `i` of the
-committed vector holds value `v` under commitment `C`.
+/-- A vector commitment scheme `Com = (Commit, Open, Verify)`.
 
-Paper: `def:binding` (commit/open/verify interface). -/
+Paper: `def:binding`. -/
 structure VectorCommitment where
+  /-- The type of one vector entry. -/
   Value : Type
+  /-- The type of a position. A vector is a total map `Index → Value`. -/
   Index : Type
+  /-- The commitment type. -/
   Com : Type
+  /-- The opening proof type. -/
   OpenProof : Type
+  /-- Commit to a vector. -/
   commit : (Index → Value) → Com
+  /-- Open a vector at one position. -/
   openProof : (Index → Value) → Index → OpenProof
+  /-- `verify C i v p` checks that position `i` of the vector under `C` holds `v`. -/
   verify : Com → Index → Value → OpenProof → Prop
 
 namespace VectorCommitment

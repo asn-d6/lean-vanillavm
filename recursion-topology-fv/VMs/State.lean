@@ -28,13 +28,15 @@ namespace VanillaZkVM
 /-- A 32-bit machine word (abstracted as `ℕ` for now). -/
 abbrev Word : Type := ℕ
 
-/-- A VM state parameterized by its memory representation `Mem`. The register
-file is modeled as a total function from a register index to its word value.
+/-- A VM state with memory representation `Mem`.
 
 Paper: ch01, section “Program, Execution, and VM State.” -/
 structure VMStateWith (Mem : Type) where
+  /-- The program counter. -/
   pc : Word
+  /-- The register file: register index to word value. -/
   regs : ℕ → Word
+  /-- The memory. -/
   mem : Mem
 
 /-- Committed VM state `Ŝ = (pc, regs, mem̂)`: memory replaced by a commitment.

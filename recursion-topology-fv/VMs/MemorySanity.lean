@@ -26,20 +26,20 @@ namespace VanillaZkVM
 
 /-! ## Witness structure for a break of update-binding -/
 
-/-- The data needed to describe a possible update-binding failure: the memory
-before and after one write, the changed address and value, and the candidate
-commitment and opening proof accepted for that write.
-
-`IsUpdateBindingBreak` below states that the memories differ only by the stated
-write and that the proof verifies against both commitments, even though the
-candidate commitment is not `VC.commit` of the updated memory. An explicit
-extract-or-break reduction can return this record when reconstruction fails. -/
+/-- A candidate update-binding failure for one write. `IsUpdateBindingBreak` says when it is
+a real failure. An extract-or-break reduction can return it when reconstruction fails. -/
 structure UpdateBindingBreak (VC : VectorCommitment) where
+  /-- The memory before the write. -/
   preMemory : VC.Index → VC.Value
+  /-- The memory after the write. -/
   postMemory : VC.Index → VC.Value
+  /-- The written address. -/
   index : VC.Index
+  /-- The written value. -/
   newValue : VC.Value
+  /-- The candidate commitment to the memory after the write. -/
   postCommitment : VC.Com
+  /-- The opening proof accepted for the write. -/
   proof : VC.OpenProof
 
 /-- `IsUpdateBindingBreak VC b` holds when `b` describes a valid one-address

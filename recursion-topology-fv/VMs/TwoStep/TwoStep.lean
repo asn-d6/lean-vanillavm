@@ -46,36 +46,41 @@ namespace TwoStep
 
 /-! ## Statements and witnesses -/
 
-/-- Segment statement: the committed boundary states. -/
+/-- Segment statement. -/
 structure SegStmt (VC : VectorCommitment) where
+  /-- The committed start state of the segment. -/
   Sin : CommittedVMState VC
+  /-- The committed end state of the segment. -/
   Sout : CommittedVMState VC
 
-/-- Segment witness: the intermediate committed states and one explicit
-`MemStep` witness per transition, both `ℕ`-indexed (only the first `Nseg + 1`
-states and `Nseg` steps matter). `MemStep.read` and `MemStep.write` values carry
-the openings that memory extraction must expose. -/
+/-- Segment witness. -/
 structure SegWitness (VC : VectorCommitment) where
+  /-- The committed states. Only the first `Nseg + 1` matter. -/
   states : ℕ → CommittedVMState VC
+  /-- One `MemStep` per transition. Only the first `Nseg` matter. Their `read` and `write`
+  values carry the openings that memory extraction must expose. -/
   steps : ℕ → MemStep VC
 
-/-- Final statement: the committed boundary states of the whole execution. -/
+/-- Final statement. -/
 structure FinalStmt (VC : VectorCommitment) where
+  /-- The committed start state of the whole execution. -/
   S0 : CommittedVMState VC
+  /-- The committed end state of the whole execution. -/
   ST : CommittedVMState VC
 
-/-- Final witness: `m` segment proofs and the boundary states they connect. -/
+/-- Final witness. -/
 structure FinalWitness (VC : VectorCommitment) (SegProof : Type) where
+  /-- The committed boundary states between segments. -/
   boundary : ℕ → CommittedVMState VC
+  /-- The `m` segment proofs. Proof `i` connects `boundary i` to `boundary (i + 1)`. -/
   proofs : ℕ → SegProof
 
-/-- Boundary statement of the VM: the initial and final *full* states. `toZkVM`
-uses it as its `Stmt`, and its verifier commits both states so that the final
-SNARK — which speaks about committed states — can check them.
-
-Paper: full-state boundaries in `def:cte` (ch05). -/
+/-- The `Stmt` of `toZkVM`. The verifier commits both states, so that the final SNARK can
+check them. Paper: full-state boundaries in `def:cte` (ch05). -/
 structure FinalStmtFull (VC : VectorCommitment) where
+  /-- The full start state. -/
   S0 : FullVMState VC
+  /-- The full end state. -/
   ST : FullVMState VC
 
 /-- Commit a full state's memory, yielding the corresponding committed state. -/
@@ -84,18 +89,23 @@ def toCommitted {VC : VectorCommitment} (S : FullVMState VC) : CommittedVMState 
 
 /-! ## The toy system -/
 
-/-- The toy system: a memory commitment scheme, a fixed five-class program and
-its operation predicates, and the two layers' proof types with their
-verifiers. -/
+/-- The toy two-layer system. -/
 structure System where
+  /-- The memory commitment scheme. -/
   VC : VectorCommitment
+  /-- The number of steps in one segment. -/
   Nseg : ℕ
+  /-- The number of segments. -/
   m : ℕ
   /-- The fixed program and its plain/committed operation predicates. -/
   isa : ISA.System VC.Index VC.Value
+  /-- The segment proof. -/
   SegProof : Type
+  /-- The segment verifier. -/
   segVerify : SegStmt VC → SegProof → Prop
+  /-- The final proof. -/
   FinalProof : Type
+  /-- The final verifier. -/
   finalVerify : FinalStmt VC → FinalProof → Prop
 
 namespace System
@@ -190,17 +200,8 @@ def memoryStepInterface : StepInterface sys.toZkVM where
   represents := CommitInv
   stepCommitted := sys.isa.committedStep
 
-/-- **Assumptions for the two-step zkVM.** This structure collects the two proof
-systems' knowledge-soundness assumptions and the three properties used to
-reconstruct full memory. Keeping these facts together makes every
-cryptographic assumption of `cte` visible in one argument.
-
-The arithmetic side condition `0 < Nseg` describes the shape of this particular
-VM and remains a separate argument.
-
-Paper: the two proof-system assumptions and the memory-commitment assumptions
-used by `prop:memory-extractability` and `thm:main` (ch05), specialized to this
-non-recursive toy. -/
+/-- The cryptographic assumptions of `cte` for the two-step zkVM. `0 < Nseg` is not here;
+it is a separate argument. Paper: `prop:memory-extractability` and `thm:main` (ch05). -/
 structure Assumptions (sys : System) : Prop where
   /-- Knowledge soundness of the segment SNARK `Π_seg`. -/
   ksSeg : KnowledgeSound sys.ASSeg

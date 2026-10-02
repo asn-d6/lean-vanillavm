@@ -32,11 +32,8 @@ program then reads with ordinary load instructions.
 namespace VanillaZkVM
 namespace NonDeterministic
 
-/-- The data completing a zkVM `Base` with a private input.
-
-`hardcode x w` is the statement of `Base` that the public statement `x` and the
-private input `w` together describe. The outer argument system proves knowledge
-of such a `w` and of a `Base`-proof accepted for `hardcode x w`. -/
+/-- The data that adds a private input to a zkVM `Base`. The outer proof shows knowledge of `w`
+and of a `Base`-proof accepted for `hardcode x w`. -/
 structure System (Base : ZkVM) where
   /-- The public statement received by the verifier. -/
   Stmt : Type
