@@ -3,13 +3,13 @@ import Mathlib
 /-!
 # Trace concatenation
 
-A reusable trace-concatenation lemma, shared by every multi-segment layer (the
-two-step toy, later the full VM). It is a generic helper over an abstract `step`
-predicate — **not** part of the frozen kernel (`docs/INVARIANTS.md` I4).
+VMs split one long run into `m` *segments* of `Nseg` steps each, and prove each segment separately. This file
+shows that we can glue the segments back into one valid trace, if each segment ends at the state where the next one
+starts. `step` is a parameter, so the lemma works for every VM.
 
 ## Main definitions / results
-* `concatTrace` — glue `m` length-`Nseg` sub-traces into one length-`m * Nseg` trace.
-* `chain_flatten` — its correctness: gluing valid sub-traces yields a valid trace.
+* `concatTrace` — glue `m` segments of length `Nseg` into one length-`m * Nseg` trace.
+* `chain_flatten` — its correctness: gluing valid segments yields a valid trace.
 -/
 
 namespace VanillaZkVM

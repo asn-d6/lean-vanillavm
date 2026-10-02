@@ -6,7 +6,7 @@ import «recursion-topology-fv».VMs.State
 This file contains the part of the whitepaper's memory-extractability argument
 that concerns memory alone. It uses the existing general `VectorCommitment`
 rather than defining a second kind of memory commitment, and assumes
-`PositionBinding` and `UpdateBinding`, the provisional binding properties in
+`PositionBinding` and `UpdateBinding`, the binding properties in
 `Preliminaries/VectorCommitment.lean`.
 
 `UpdateBinding` supplies the write guarantee this argument needs: the commitment
@@ -15,8 +15,7 @@ it, a write could be accepted into a commitment that no full memory maps to, and
 reconstruction would have no state to produce (`MemorySanity` exhibits exactly
 that).
 
-* **Commitment injectivity:** `mem_eq_of_commit_eq` — a fact about commitments,
-  proved here because `Preliminaries/VectorCommitment.lean` is definitions only.
+* **Commitment injectivity:** `mem_eq_of_commit_eq`.
 * **State representation:** `FullVMState` and `CommitInv`.
 * **Concrete predicates:** the per-transition memory witness `MemStep`, plus
   `CommittedMemory.read`/`.write`/`.step` (the `φ̂` predicates over
@@ -484,8 +483,8 @@ and `committedStep … Ŝ₁ Ŝ₂`, construct a full-memory state `S₂` repres
 `S₁` to `S₂`.
 
 Unlike `step_reconstruct_exact`, the caller does not choose a particular
-`MemStep`; `committedStep` supplies one. This is the conclusion required by the
-frozen step interface.
+`MemStep`; `committedStep` supplies one. This is the conclusion required by
+`StepInterface`.
 
 Paper: inductive construction in `rem:mem-inheritance` and Step 6 of
 `thm:main` (ch05). -/

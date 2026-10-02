@@ -1,11 +1,11 @@
 import «recursion-topology-fv».VMs.NonDeterministic.Wrapper
 
 /-!
-# Consistency-floor model for the private-input wrapper
+# Sanity model for the private-input wrapper
 
 A one-step counter whose statement fixes both endpoints is wrapped so that only
 the final value is public and the initial value is the private input. The outer
-proof is the claimed initial value. This witnesses (I6) that the hypotheses of
+proof is the claimed initial value. This shows that the hypotheses of
 `NonDeterministic.System.cte` are jointly satisfiable, that the wrapped
 verifier accepts a concrete proof, and that the private input is not trivial:
 the wrapped VM's traces start at a value the statement does not contain.

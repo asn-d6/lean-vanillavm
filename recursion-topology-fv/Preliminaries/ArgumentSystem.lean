@@ -1,23 +1,13 @@
 import Mathlib
 
 /-!
-# Relations and argument systems — the frozen kernel (definitions only)
+# Relations and argument systems
 
-The scheme-independent heart the whole development rests on: relations,
-non-interactive arguments, and straight-line knowledge soundness. This file is
-**definitions only**; the consistency-floor model that witnesses their
-satisfiability (I6) lives in `ArgumentSystemSanity.lean`.
+Scheme-independent definitions: relations, non-interactive arguments, and straight-line knowledge soundness.
 
-## Frozen kernel (`docs/INVARIANTS.md` I4) — the stable heart, not to be forked
 * `Relation` — a statement/witness relation.
-* `ArgumentSystem` — a non-interactive argument (verifier only; see below).
+* `ArgumentSystem` — a non-interactive argument
 * `Extractor` + `KnowledgeSound` — straight-line knowledge soundness.
-
-The rest of `Preliminaries/` is the **provisional** commitment layer, which is
-*not* frozen and is expected to change: `VectorCommitment.lean` (with `Complete`,
-`PositionBinding`, and `UpdateBinding`) and `HashCommitment.lean` (with
-`CollisionResistant`, for the bus commitment). Do not depend on the exact current
-shape of either; each declaration there carries a `provisional` note.
 
 ## Soundness is modeled as *perfect straight-line extraction* (no probabilities)
 
@@ -26,23 +16,11 @@ phrased in a **perfect**, probability-free style: the relevant "bad event" simpl
 never happens. For knowledge soundness this reads "whenever a proof verifies, the
 extractor returns a valid witness"; for the commitments, "no two accepted openings
 disagree" and "the commitment map is injective".
-
-We model an adversary as the already-sampled output of a single run, so its
-advantage is a `{0,1}` indicator; a negligibility predicate then collapses to
-"the bad event is eventually false". Since every reduction here is pointwise and
-the one non-trivial base case fails by an arithmetic contradiction, neither the
-security parameter nor a real-analysis layer does any work, so we drop them.
-Recovering quantitative security later means reintroducing, jointly, real-valued
-advantages, randomized adversaries (e.g. via `PMF`), and negligibility; only the
-soundness/binding predicates would change, not the structures.
-
-`ArgumentSystem` carries only a verifier: the document's `Π = (Prove, Verify)`
-has a prover too, but it plays no role in soundness, so we omit it.
 -/
 
 namespace VanillaZkVM
 
-/-! ## Frozen kernel (I4) — relations and argument systems:
+/-! ## Structure of definitions:
 
       Relation              -- statements, witnesses, membership
          ▲  R
@@ -79,8 +57,8 @@ structure Extractor (R : Relation) (AS : ArgumentSystem R) where
 single universal extractor `E` such that whenever a proof verifies for a
 statement, `E` recovers a valid witness.
 
-Paper: `def:extractable` / `eq:extractable`. Lean deliberately takes the
-perfect, probability-free specialization required by I8. -/
+Paper: `def:extractable` / `eq:extractable`. Lean uses the perfect,
+probability-free version. -/
 def KnowledgeSound {R : Relation} (AS : ArgumentSystem R) : Prop :=
   ∃ E : Extractor R AS, ∀ (x : R.Stmt) (p : AS.Proof),
     AS.verify x p → R.rel x (E.extract x p)

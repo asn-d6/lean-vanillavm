@@ -2,10 +2,10 @@ import «recursion-topology-fv».Preliminaries.ArgumentSystem
 import «recursion-topology-fv».Specification.Zkvm
 
 /-!
-# Correct-trace extractability — the specification (the abstract heart)
+# Correct-trace extractability
 
 This is the central file: what an abstract `ZkVM` (from `Zkvm.lean`) is *meant to
-prove*, and its equivalence with the frozen knowledge-soundness notion.
+prove*, and its equivalence with knowledge soundness.
 
 ## Main definitions
 * the correct-execution relation `Rstar` the system is meant to prove, and the
@@ -48,7 +48,7 @@ every accepting proof into a private input and a valid `T`-step execution of the
 claim under that private input.
 
 Paper: `def:cte` in `docs/vanillaVM.pdf`. This is its
-perfect, probability-free core: PPT/probability bookkeeping is out of scope (I8),
+perfect, probability-free core: PPT/probability bookkeeping is out of scope,
 and the full-memory boundary commitment equations belong to a concrete VM instance
 rather than to this abstract statement. The paper's extractor returns only the
 trace; the private-input component is the Lean generalization, and for a

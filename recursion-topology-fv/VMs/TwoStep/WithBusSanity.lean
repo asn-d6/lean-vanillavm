@@ -2,7 +2,7 @@ import «recursion-topology-fv».VMs.MemorySanity
 import «recursion-topology-fv».VMs.TwoStep.WithBus
 
 /-!
-# Consistency checks for the segment bus and its two-layer connection
+# Sanity checks for the segment bus and its two-layer connection
 
 This file constructs a small system in which all assumptions of the reusable
 one-segment theorem and the two-layer CTE theorem hold. An accepted final proof

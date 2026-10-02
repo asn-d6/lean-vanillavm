@@ -2,10 +2,10 @@ import «recursion-topology-fv».VMs.MemorySanity
 import «recursion-topology-fv».VMs.TwoStep.TwoStep
 
 /-!
-# Consistency-floor model for two-step CTE
+# Sanity model for two-step CTE
 
 A one-segment, one-step system over `MemorySanity.exactVC` witnesses that all
-hypotheses of `TwoStep.System.cte` are jointly satisfiable (I6). Its proof
+hypotheses of `TwoStep.System.cte` are jointly satisfiable. Its proof
 objects are relation witnesses, so both argument systems are knowledge-sound by
 the identity extractor. A concrete final proof is accepted, and the step is an
 arithmetic `.other` transition rather than an everywhere-true

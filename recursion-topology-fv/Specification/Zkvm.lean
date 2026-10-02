@@ -17,7 +17,7 @@ This file deliberately depends on nothing but Mathlib. What the system is meant
 to *prove* — the correct-execution relation `R*`, correct-trace extractability,
 and the keystone equivalence with knowledge soundness — is the specification
 proper and lives in `Cte.lean`, which is the only file in `Specification/` that
-needs the argument-system kernel.
+needs `ArgumentSystem.lean`.
 
 ## Main definitions
 * an abstract `ZkVM` system (compare the zkVM of the vanilla document, stripped

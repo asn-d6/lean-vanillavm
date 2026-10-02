@@ -180,7 +180,7 @@ def toZkVM : ZkVM where
   Proof := sys.FinalProof
   verify := fun x p => sys.finalVerify ⟨toCommitted x.S0, toCommitted x.ST⟩ p
 
-/-- This VM's instance of the frozen step contract (`StepInterface`).
+/-- This VM's instance of the step contract (`StepInterface`).
 `CommitInv` says when a committed state represents a full state.
 `ISA.System.committedStep` says that some program-consistent `MemStep` connects
 two committed states. This record connects those notions to `toZkVM.step`; it

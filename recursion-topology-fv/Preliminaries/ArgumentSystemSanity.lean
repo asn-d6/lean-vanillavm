@@ -1,11 +1,9 @@
 import «recursion-topology-fv».Preliminaries.ArgumentSystem
 
 /-!
-# Consistency-floor models for the argument-system kernel
+# Sanity model for argument systems
 
-Non-vacuity witnesses (`docs/INVARIANTS.md` I6) for the definitions in
-`ArgumentSystem.lean`, kept out of the definitions file so the kernel is
-definitions only.
+Shows that the definitions in `ArgumentSystem.lean` can be satisfied.
 
 ## Main definitions
 * `trivialAS` — the honest degenerate argument system for any relation.
@@ -28,8 +26,8 @@ def trivialAS (R : Relation) : ArgumentSystem R where
 /-- **Non-vacuity of `KnowledgeSound`.** `KnowledgeSound` is an idealized
 assumption. Here we discharge the worry — that it might be unsatisfiable, making
 every `KnowledgeSound … → …` theorem vacuously true — by exhibiting a model:
-`trivialAS` is knowledge-sound, with the identity extractor. This is a consistency
-floor, not a security guarantee: it shows the assumption is not `False`, not that
+`trivialAS` is knowledge-sound, with the identity extractor. This is a sanity
+check, not a security guarantee: it shows the assumption is not `False`, not that
 any real (succinct) SNARK meets it. -/
 theorem knowledgeSound_trivialAS (R : Relation) : KnowledgeSound (trivialAS R) :=
   ⟨⟨fun _ w => w⟩, fun _ _ h => h⟩

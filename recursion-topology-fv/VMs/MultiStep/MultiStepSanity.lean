@@ -2,10 +2,10 @@ import «recursion-topology-fv».VMs.MemorySanity
 import «recursion-topology-fv».VMs.MultiStep.MultiStep
 
 /-!
-# Consistency-floor model for multi-step CTE
+# Sanity model for multi-step CTE
 
 A two-segment, one-step-per-segment system over `MemorySanity.exactVC` witnesses
-that all hypotheses of `MultiStep.System.cte` are jointly satisfiable (I6). Each
+that all hypotheses of `MultiStep.System.cte` are jointly satisfiable. Each
 SNARK layer uses the identity extractor; `simpa` bridges the verify/relation gap.
 
 All declarations are private; this module adds no public API.

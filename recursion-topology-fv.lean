@@ -1,8 +1,8 @@
--- Preliminaries: generic cryptography (defs only) and shared helpers.
-import «recursion-topology-fv».Preliminaries.ArgumentSystem        -- frozen: Relation, ArgumentSystem, Extractor, KnowledgeSound
-import «recursion-topology-fv».Preliminaries.ArgumentSystemSanity  -- non-vacuity model for the kernel (trivialAS)
-import «recursion-topology-fv».Preliminaries.VectorCommitment      -- provisional: memory commitment + binding notions
-import «recursion-topology-fv».Preliminaries.HashCommitment        -- provisional: bus commitment + collision resistance
+-- Preliminaries: generic cryptography and shared helpers.
+import «recursion-topology-fv».Preliminaries.ArgumentSystem        -- Relation, ArgumentSystem, Extractor, KnowledgeSound
+import «recursion-topology-fv».Preliminaries.ArgumentSystemSanity  -- non-vacuity model for ArgumentSystem (trivialAS)
+import «recursion-topology-fv».Preliminaries.VectorCommitment      -- memory commitment + binding notions
+import «recursion-topology-fv».Preliminaries.HashCommitment        -- bus commitment + collision resistance
 import «recursion-topology-fv».Preliminaries.Trace                 -- reusable trace concatenation (concatTrace / chain_flatten)
 
 -- Specification: the abstract target the concrete VMs must meet.
@@ -36,10 +36,10 @@ The development is layered `Preliminaries → Specification → VMs`, and the im
 above are grouped accordingly. Every arrow in the module graph points up that
 list; there are no back-edges.
 
-* `Preliminaries/` — scheme-independent cryptography, definitions only, plus its
-  I6 consistency floor and the generic trace-concatenation helper.
-* `Specification/` — what a zkVM is and what it must prove (the frozen kernel:
-  `ZkVM`, `TraceValid`, `Rstar`, `CTE`, `cte_iff_knowledgeSound`).
+* `Preliminaries/` — scheme-independent cryptography, its sanity models, and the
+  generic trace-concatenation helper.
+* `Specification/` — what a zkVM is and what it must prove:
+  `ZkVM`, `TraceValid`, `Rstar`, `CTE`, `cte_iff_knowledgeSound`.
 * `VMs/` — concrete VM machinery: state vocabulary, the step-interface contract,
   committed-memory reconstruction, the representative ISA, the per-segment bus,
   the two-step variants, the multi-step recursion tower, the final recursive VM

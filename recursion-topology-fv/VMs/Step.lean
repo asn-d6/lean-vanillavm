@@ -34,7 +34,7 @@ namespace VanillaZkVM
 its committed-memory layer.
 
 `V.step` is the one plain step predicate, taken from the `ZkVM` itself so that
-no module declares a different, unrelated execution rule (I5).
+no module declares a different, unrelated execution rule.
 `represents Ŝ S` records that committed state `Ŝ` represents plain state `S`.
 `stepCommitted` takes only its
 two endpoint states. If an implementation also needs operation data or an

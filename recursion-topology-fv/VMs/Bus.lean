@@ -492,8 +492,8 @@ the segment-trace bus, so all chip checks apply to that one bus.
 The result retains the bus and memory witness of every transition. It does not
 compare this bus with the bus of any other segment.
 
-Paper: `lem:segment` (ch05), in the perfect collision-resistance model required
-by `docs/INVARIANTS.md` I8. -/
+Paper: `lem:segment` (ch05), with perfect (probability-free) collision
+resistance. -/
 theorem segment_extract (h : sys.Assumptions) :
     ∃ E : SegmentStmt sys.VC → sys.SegmentProof → SegmentTrace sys.VC,
       ∀ (x : SegmentStmt sys.VC) (p : sys.SegmentProof),

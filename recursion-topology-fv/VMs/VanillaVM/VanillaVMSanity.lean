@@ -2,7 +2,7 @@ import «recursion-topology-fv».VMs.MemorySanity
 import «recursion-topology-fv».VMs.VanillaVM.VanillaVM
 
 /-!
-# Consistency check for the assembled Vanilla VM
+# Sanity check for the assembled Vanilla VM
 
 This file constructs a two-step example in which every assumption of
 `VanillaVM.System.cte_main` holds and the final verifier accepts a proof. Each

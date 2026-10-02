@@ -3,10 +3,8 @@ import «recursion-topology-fv».VMs.Memory
 /-!
 # Memory-binding sanity models
 
-Both sides of the non-vacuity / separation check for the provisional binding
-layer (`docs/INVARIANTS.md` I6), kept out of the definitions-only
-`Preliminaries/VectorCommitment.lean` and placed beside the memory
-reconstruction that consumes those notions:
+Models for the binding notions of `Preliminaries/VectorCommitment.lean`: one that
+satisfies them, and one that shows they are not all equivalent:
 
 * `exactVC` is a deliberately non-succinct commitment satisfying completeness,
   position binding, and update binding, witnessing that the `Memory`
@@ -23,8 +21,7 @@ reconstruction that consumes those notions:
 
 The `UpdateBindingBreak` record is defined beside `UpdateBinding` in
 `Preliminaries/VectorCommitment.lean`;
-`UpdateBinding.not_isUpdateBindingBreak` — proved here, since that file is
-definitions only — shows that no record satisfying `IsUpdateBindingBreak` can
+`UpdateBinding.not_isUpdateBindingBreak` shows that no record satisfying `IsUpdateBindingBreak` can
 coexist with update binding. It is not yet an explicit reduction.
 -/
 
@@ -145,7 +142,7 @@ def singleWriteMemory : Bool → Bool :=
 /-- `exactVC` accepts a write that changes address `false` from `false` to
 `true` with one shared authentication proof, and the two commitments differ.
 
-Kept `private` (I5): it documents why a shared opening is not enough on its own,
+Kept `private`: it documents why a shared opening is not enough on its own,
 but nothing outside this file consumes it. -/
 private theorem exactVC_accepts_changed_write :
     exactVC.commit zeroMemory ≠ exactVC.commit singleWriteMemory ∧
