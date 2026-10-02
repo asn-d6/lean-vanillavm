@@ -24,8 +24,6 @@ rather than the whitepaper's complete opcode list:
 ## Main result
 * `System.stepPlain_iff_operation_at_pc` — a valid step is exactly the
   operation selected by the program at the current program counter.
-* `System.operation_preserves_memory_unless_write` — every operation class
-  other than `write` leaves memory unchanged.
 * `System.committedOperation_stepPlain` — after memory reconstruction, an
   accepted committed operation satisfies the single plain step predicate used
   as `ZkVM.step`.
@@ -153,18 +151,6 @@ theorem stepPlain_iff_operation_at_pc (S₁ S₂ : VMStateWith (Index → Value)
     isa.stepPlain S₁ S₂ ↔ isa.operation (isa.code S₁.pc) S₁ S₂ := by
   cases hcode : isa.code S₁.pc <;> simp [stepPlain, operation, hcode]
 
-/-- Every operation class except `write` preserves memory. In
-particular, this covers `read`, `arith`, `hash`, and `bin`; the read predicate
-also checks the loaded value at the selected address.
-
-Paper: memory-operation semantics in ch01 and the non-memory-operation
-equation immediately before `eq:step` (ch03). -/
-theorem operation_preserves_memory_unless_write
-    (op : OperationClass) (S₁ S₂ : VMStateWith (Index → Value)) (hop : op ≠ .write)
-    (h : isa.operation op S₁ S₂) :
-    S₂.mem = S₁.mem := by
-  cases op <;> simp_all [operation, FullMemory.read]
-
 /-! ## Connection to committed-memory execution -/
 
 /-- Select the PC/register requirements for the instruction at the current
@@ -226,7 +212,7 @@ the same `MemStep` between the corresponding full states. Then those full
 states satisfy `stepPlain`. `CommitInv` supplies the fact that each committed
 state has the same program counter and registers as its full state.
 
-`TwoStep.System.memoryBridge` uses this theorem to keep opening proofs inside
+`TwoStep.System.traceValid_full` uses this theorem to keep opening proofs inside
 the extraction argument while making `ZkVM.step` the ordinary fixed-program
 execution predicate.
 

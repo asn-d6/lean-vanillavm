@@ -49,7 +49,7 @@ succinct SNARK meets it.
 `Mem`: `S = (pc ∈ Word, regs : ℕ → Word, mem ∈ Mem)`. The full state uses
 `Mem = (Addr → Byte)`; the committed state `Ŝ` (ch02) uses `Mem = Com` (a memory
 commitment).
-*Lean:* `VMStateWith Mem`, `VMState`, `CommittedVMState VC`.
+*Lean:* `VMStateWith Mem`, `CommittedVMState VC`.
 
 **Abstract zkVM.** `V = (State, step, T, Stmt, PrivInput, initial, terminal, Proof, verify)`
 where `step ⊆ State × State`, `T ∈ ℕ` is fixed within this zkVM instance,
@@ -132,15 +132,6 @@ transition's `MemStep`, and
 
     stepWithBus : CState × CState × StepAux → Prop.
 
-The **memory bridge** (`StepInterface.MemoryBridge`) is
-
-    Rep(Ĉ₁,S₁) ∧ stepCommitted(Ĉ₁,Ĉ₂)
-      ⟹ ∃ S₂. Rep(Ĉ₂,S₂) ∧ V.step(S₁,S₂).
-
-The existential construction of `S₂` establishes `Rep` for successive states by
-induction. Assuming `Rep(Ĉ₂,S₂)` as a premise would prove
-only a conditional one-step refinement and would not reconstruct a trace.
-
 The **bus bridge** (`StepInterface.BusBridge stepWithBus`) is
 
     stepWithBus(Ĉ₁,Ĉ₂,b) ⟹ stepCommitted(Ĉ₁,Ĉ₂).
@@ -150,9 +141,8 @@ step and chip checks on one bus. Once `stepWithBus` holds, the concrete
 two-layer instance proves this implication directly from the ISA definitions;
 the bridge itself needs no additional cryptographic assumption.
 
-These are Lean-only coordination propositions whose concrete instances target
-`prop:memory-extractability` and `lem:segment`; they are not additional paper
-claims.
+This is a Lean-only coordination proposition whose concrete instances target
+`lem:segment`; it is not an additional paper claim.
 
 **Non-vacuity.** `VMs/StepSanity.lean` gives an accepting one-step Boolean toggle
 zkVM whose committed/plain representation is equality and which satisfies CTE
@@ -270,17 +260,12 @@ For an abstract non-memory predicate `φ'` on the two PCs and register files:
          ∧ ∀ j ≠ addr, S₂.mem(j) = S₁.mem(j).
 
 `CommittedMemory.step` and `FullMemory.step` select these equations by `w`; `.other` preserves memory.
-When a caller needs only a relation between the two committed states, it says
-that some accepted `MemStep` exists:
-
-    committedStep(Ŝ₁,Ŝ₂) := ∃ w : MemStep VC, CommittedMemory.step(Ŝ₁,Ŝ₂,w).
 
 This is deliberately the **memory-only component**. By itself it does not connect
 `addr` and `v` to specific registers, decode the concrete ISA, or model the
 bus. `ISA.System.committedOperation` below adds the program/register requirements;
 the bus layer adds the bus condition.
-*Lean:* `MemStep`, `CommittedMemory.read`, `CommittedMemory.write`, `FullMemory.read`, `FullMemory.write`, `CommittedMemory.step`, `FullMemory.step`,
-`committedStep`.
+*Lean:* `MemStep`, `CommittedMemory.read`, `CommittedMemory.write`, `FullMemory.read`, `FullMemory.write`, `CommittedMemory.step`, `FullMemory.step`.
 
 ### 1.2 One-step memory extraction
 
@@ -289,18 +274,7 @@ Completeness plus position binding imply injectivity of commitments produced by
 
     commit(m₁) = commit(m₂) ⟹ m₁ = m₂.
 
-Given `VC.Complete`, `VC.PositionBinding`, `VC.UpdateBinding`, `CommitInv` for
-both endpoint states, and a committed-memory step,
-
-    CommitInv(Ŝ₁,S₁) ∧ CommitInv(Ŝ₂,S₂) ∧ CommittedMemory.step(Ŝ₁,Ŝ₂,w)
-      ⟹ FullMemory.step(S₁,S₂,w).
-
-Reads compare the supplied opening with the opening produced by `openProof` and
-use commitment injectivity to preserve memory. Writes use position binding to
-identify the old and new leaves, update binding to identify the second
-committed-memory state's commitment with the point-updated memory, and
-injectivity to identify the supplied second full memory.
-*Lean:* `mem_eq_of_commit_eq`, `step_mem_extract`.
+*Lean:* `mem_eq_of_commit_eq`.
 
 ### 1.3 Inductive reconstruction
 
@@ -312,23 +286,15 @@ establishes `CommitInv` for the next state in the write case:
       ⟹ CommitInv(Ŝₖ₊₁,Sₖ₊₁)
           ∧ FullMemory.step(Sₖ,Sₖ₊₁,wₖ).
 
-The public theorem `step_reconstruct_exact` states this implication for the
-same supplied `wₖ`. Keeping that value is necessary when a later layer must
-also prove that its constructor, address, and value agree with the instruction
-selected by the program.
+The reconstruction keeps the same supplied `wₖ`. Keeping that value is
+necessary when a later layer must also prove that its constructor, address,
+and value agree with the instruction selected by the program.
 
-If the caller only needs to know that some `MemStep` exists, the theorem has
-the frozen memory-bridge shape:
-
-    CommitInv(Ŝ₁,S₁) ∧ committedStep(Ŝ₁,Ŝ₂)
-      ⟹ ∃ S₂. CommitInv(Ŝ₂,S₂) ∧ ∃ w : MemStep VC. FullMemory.step(S₁,S₂,w).
-
-The memory-only theorem above remains useful independently of an ISA. In the
-two-step `ZkVM`, the committed relation is strengthened to require that the
-same `MemStep` agrees with `code[pc]`; `memoryBridge` uses the exact theorem and
-the ISA correspondence lemma to conclude the single `stepPlain` predicate used
-as `ZkVM.step`.
-It still constructs `S₂` rather than assuming `CommitInv(Ŝ₂,S₂)`.
+In the two-step `ZkVM`, the committed relation is strengthened to require that
+the same `MemStep` agrees with `code[pc]`; `traceValid_full` uses the trace
+theorem and the ISA correspondence lemma to conclude the single `stepPlain`
+predicate used as `ZkVM.step`. It still constructs `S₂` rather than assuming
+`CommitInv(Ŝ₂,S₂)`.
 
 Induction over `k < T` yields both:
 
@@ -339,9 +305,9 @@ This is the perfect, memory-only version of the paper's
 memory-extractability reduction and its `CommitInv` relation. It assumes
 the binding properties directly; explicit bad-event reductions and advantage
 accounting remain assigned to Issues 6 and 10.
-*Lean:* public `step_reconstruct_exact`, `step_reconstruct`, `reconstructTrace`, and
+*Lean:* public `reconstructTrace` and
 `trace_mem_extract` (the root-update and single-step lemmas are private),
-`TwoStep.System.memoryStepInterface`, `TwoStep.System.memoryBridge`.
+`TwoStep.System.memoryStepInterface`, `TwoStep.System.traceValid_full`.
 
 ### 1.4 Full-memory CTE for the two-step toy
 
@@ -369,11 +335,6 @@ with the full terminal state in the statement.
 `VMs/TwoStep/TwoStepSanity.lean` permanently checks non-vacuity: a one-segment, one-step
 system over `MemorySanity.exactVC` has identity knowledge extractors, an
 accepting final proof, and satisfies `cte`'s complete hypothesis bundle.
-`VMs/MemorySanity.lean` also instantiates the append-bit attack at the bridge level:
-the initial full-memory state represents the first committed-memory state and
-the committed-memory write verifies, but the second commitment has no
-full-memory representative. Thus dropping update binding would
-make the frozen bridge conclusion false, not merely harder to prove.
 
 This remains the non-recursive toy theorem. Section 7 assembles the bus and
 recursion layers into the probability-free VanillaVM theorem. The
@@ -404,7 +365,7 @@ and converts register words to the memory's address and value types:
     indexOfWord : Word → Index,
     valueOfWord : Word → Value.
 
-For the paper's ordinary `VMState`, `Index = Addr` and `Value = Byte`; both
+For the paper's ordinary state `VMStateWith (Addr → Byte)`, `Index = Addr` and `Value = Byte`; both
 maps are the identity because all three are currently represented by `ℕ`.
 The parameters also let the same ISA predicate act directly on
 `FullVMState VC` for a general commitment scheme. Both names still use the same
@@ -472,8 +433,7 @@ independently of the fixed program.
 Consequently, whenever `φ_op(S₁,S₂)` holds and `op ≠ write`, memory is
 unchanged. In particular, a read cannot silently alter memory.
 
-*Lean:* `ISA.System.stepPlain`, `ISA.System.stepPlain_iff_operation_at_pc`,
-`ISA.System.operation_preserves_memory_unless_write`.
+*Lean:* `ISA.System.stepPlain`, `ISA.System.stepPlain_iff_operation_at_pc`.
 
 ### 3.4 Committed operations and the two-step VM
 
@@ -567,8 +527,7 @@ A **recursion statement** carries committed boundaries and a step count; an
 
     RecStmt(VC)   := { (S₀, S_N, N) }        EmbedStmt(VC) := { (S₀, S_T) }.
 
-*Lean:* `MultiStep.System`, `RecStmt`, `EmbedStmt`, `m`, `m_ge_two`, `T_eq`,
-`T_ge_Nseg`.
+*Lean:* `MultiStep.System`, `RecStmt`, `EmbedStmt`, `m`, `T_ge_Nseg`.
 
 ### 4.2 Implicit proof-tree topology
 
@@ -788,7 +747,7 @@ shows up in the axiom footprints: `buildTrace`, `combine_tree`, and
 with exactly the same footprint as `TwoStep.System.cte`.
 
 *Lean:* `committedTrace_extract`, `FinalStmtFull`, `toCommitted`, `toZkVM`,
-`CommittedTraceValid`, `memoryStepInterface`, `memoryBridge`, `traceValid_full`,
+`CommittedTraceValid`, `traceValid_full`,
 `cte`.
 
 ### 4.7 Non-vacuity (I6)

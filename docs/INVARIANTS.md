@@ -28,14 +28,14 @@ the invariant number (I1, I2, …) when a decision depends on it. Modeled on the
   `Specification/Zkvm.lean`) and `Rstar`, `CTE`, and `cte_iff_knowledgeSound` (from
   `Specification/Cte.lean`). Downstream work extends or instantiates these; it does
   not fork or duplicate them. The consistency guard also freezes the signatures of
-  `StepInterface`, `StepInterface.MemoryBridge`, and `StepInterface.BusBridge` (from
+  `StepInterface` and `StepInterface.BusBridge` (from
   `VMs/Step.lean`);
   these are Lean-only scaffolding rather than paper rows. Changing a frozen signature requires a PR
   touching this file and re-approval of every dependent `CORRESPONDENCE.md` row that exists.
 
   *Amendment (2026-09-22, directed by Benedikt):* the abstract `ZkVM` gained a private-input type
   `PrivInput`, and `initial`/`terminal`, `TraceValid`, `Rstar`, and `CTE` take or return a
-  private input accordingly. `StepInterface` and the two bridges are unchanged. The paper's
+  private input accordingly. `StepInterface` and its bridges are unchanged. The paper's
   deterministic notions are the special case `PrivInput := Unit`; the `Rstar` and `CTE`
   correspondence rows are reopened for re-approval.
 

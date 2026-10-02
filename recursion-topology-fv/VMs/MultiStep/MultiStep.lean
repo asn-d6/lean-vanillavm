@@ -139,15 +139,6 @@ def toZkVM : ZkVM where
   Proof := sys.EmbedProof
   verify := fun x p => sys.embedVerify ⟨toCommitted x.S0, toCommitted x.ST⟩ p
 
-/-- Step interface for this VM: `CommitInv` is the representation relation, and
-`ISA.System.committedStep` the binary committed predicate — some `MemStep` passes
-both the memory checks and the program's operation check, not the bare memory
-relation. -/
-def memoryStepInterface : StepInterface sys.toZkVM where
-  CommittedState := CommittedVMState sys.VC
-  represents := CommitInv
-  stepCommitted := sys.isa.committedStep
-
 /-! ## Relations -/
 
 /-- The leaf relation: a trace of `Nseg` committed steps from `S0` to `SN`,
@@ -322,14 +313,6 @@ variable (sys : System)
 
 /-! ## System parameter properties -/
 
-theorem m_ge_two : sys.m ≥ 2 :=
-  (Nat.le_div_iff_mul_le sys.hNseg).mpr sys.hT
-
-theorem m_pos : 0 < sys.m := Nat.lt_of_lt_of_le (by omega) sys.m_ge_two
-
-theorem T_eq : sys.T = sys.m * sys.Nseg :=
-  (Nat.div_mul_cancel sys.hDvd).symm
-
 theorem T_ge_Nseg : sys.T ≥ sys.Nseg :=
   le_trans (Nat.le_mul_of_pos_left sys.Nseg (by omega)) sys.hT
 
@@ -473,24 +456,6 @@ theorem committedTrace_extract (h : sys.Assumptions) :
   intro x p hp
   exact sys.combine_tree El hEl Ec hEc Ecb hEcb sys.T sys.hDvd sys.T_ge_Nseg
     x.S0 x.ST (.inr (Ee.extract x p)) (hEe x p hp)
-
-/-! ## Memory reconstruction -/
-
-/-- `StepInterface.MemoryBridge` for this VM.
-
-Paper: `prop:memory-extractability`, `rem:mem-inheritance`, `thm:main` Step 6
-(ch05). -/
-theorem memoryBridge
-    (hComplete : sys.VC.Complete) (hpos : sys.VC.PositionBinding)
-    (hupd : sys.VC.UpdateBinding) :
-    sys.memoryStepInterface.MemoryBridge := by
-  intro Ŝ₁ Ŝ₂ S₁ hInv hstep
-  obtain ⟨w, hw⟩ := hstep
-  obtain ⟨S₂, hInv₂, hfull⟩ :=
-    step_reconstruct_exact hComplete hpos hupd sys.isa.selectedMemFreePred
-      S₁ Ŝ₁ Ŝ₂ w hInv hw.1
-  refine ⟨S₂, hInv₂, ?_⟩
-  exact sys.isa.committedOperation_stepPlain S₁ S₂ Ŝ₁ Ŝ₂ w hInv hInv₂ hw hfull
 
 /-! ## The Memory ↔ MultiStep bridge -/
 

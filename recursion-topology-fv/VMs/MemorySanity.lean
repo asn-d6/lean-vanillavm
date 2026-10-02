@@ -15,17 +15,43 @@ satisfies them, and one that shows they are not all equivalent:
   not imply that an accepted commitment is an output of `commit`. This does not
   assert that update binding implies position binding: the two are independent
   requirements.
-* A private counterexample to `MemoryBridge` uses that ignored bit to exhibit a
-  represented full-memory state before an accepted committed-memory write, but
-  no full-memory state representing the commitment after the write.
 
-The `UpdateBindingBreak` record is defined beside `UpdateBinding` in
-`Preliminaries/VectorCommitment.lean`;
-`UpdateBinding.not_isUpdateBindingBreak` shows that no record satisfying `IsUpdateBindingBreak` can
-coexist with update binding. It is not yet an explicit reduction.
+The `UpdateBindingBreak` record describes one update-binding failure.
+`UpdateBinding.not_isUpdateBindingBreak` shows that no record satisfying
+`IsUpdateBindingBreak` can coexist with update binding. It is not yet an
+explicit reduction.
 -/
 
 namespace VanillaZkVM
+
+/-! ## Witness structure for a break of update-binding -/
+
+/-- The data needed to describe a possible update-binding failure: the memory
+before and after one write, the changed address and value, and the candidate
+commitment and opening proof accepted for that write.
+
+`IsUpdateBindingBreak` below states that the memories differ only by the stated
+write and that the proof verifies against both commitments, even though the
+candidate commitment is not `VC.commit` of the updated memory. An explicit
+extract-or-break reduction can return this record when reconstruction fails. -/
+structure UpdateBindingBreak (VC : VectorCommitment) where
+  preMemory : VC.Index → VC.Value
+  postMemory : VC.Index → VC.Value
+  index : VC.Index
+  newValue : VC.Value
+  postCommitment : VC.Com
+  proof : VC.OpenProof
+
+/-- `IsUpdateBindingBreak VC b` holds when `b` describes a valid one-address
+update whose proof is accepted, but whose candidate commitment is not the
+commitment of the resulting memory. -/
+def IsUpdateBindingBreak (VC : VectorCommitment)
+    (b : UpdateBindingBreak VC) : Prop :=
+  b.postMemory b.index = b.newValue ∧
+  (∀ j, j ≠ b.index → b.postMemory j = b.preMemory j) ∧
+  VC.verify (VC.commit b.preMemory) b.index (b.preMemory b.index) b.proof ∧
+  VC.verify b.postCommitment b.index b.newValue b.proof ∧
+  b.postCommitment ≠ VC.commit b.postMemory
 
 /-- Update binding rules out every record satisfying `IsUpdateBindingBreak`:
 the equality supplied by update binding contradicts the record's final
@@ -162,7 +188,7 @@ private theorem exactVC_accepts_changed_write :
     exact ⟨by simp [singleWriteMemory],
       fun j hj => by simp [singleWriteMemory, zeroMemory, hj]⟩
 
-/-! ## `MemoryBridge` non-vacuity -/
+/-! ## `trace_mem_extract` non-vacuity -/
 
 private def writeMemFree : MemFreePredicate :=
   fun _ _ _ _ => True
@@ -180,12 +206,16 @@ private def changedWrite : MemStep exactVC :=
   .write false true false zeroMemory
 
 private theorem changedWrite_committed :
-    committedStep writeMemFree writePreCommitted writePostCommitted := by
-  refine ⟨changedWrite, ?_⟩
+    CommittedMemory.step writeMemFree writePreCommitted writePostCommitted changedWrite := by
   simp [changedWrite, CommittedMemory.step, CommittedMemory.write, writeMemFree, writePreCommitted,
     writePostCommitted, writePre, exactVC, zeroMemory, singleWriteMemory]
 
-/-- `step_reconstruct` is non-vacuous for a write that changes `false` to
+/-- The one-step committed trace `writePreCommitted → writePostCommitted`. -/
+private def writeTrace : ℕ → CommittedVMState exactVC
+  | 0 => writePreCommitted
+  | _ + 1 => writePostCommitted
+
+/-- `trace_mem_extract` is non-vacuous for a write that changes `false` to
 `true`: all three binding assumptions hold simultaneously, the committed-memory
 step accepts one shared proof, and reconstruction produces a represented
 full-memory state satisfying `FullMemory.step`. All data stays private, so this
@@ -193,10 +223,13 @@ non-vacuity check adds no public API. -/
 example :
     ∃ S₂ : FullVMState exactVC,
       CommitInv writePostCommitted S₂ ∧
-        ∃ w : MemStep exactVC, FullMemory.step writeMemFree writePre S₂ w := by
-  exact step_reconstruct exactVC_complete exactVC_positionBinding
-    exactVC_updateBinding writeMemFree writePre writePreCommitted
-    writePostCommitted ⟨rfl, rfl, rfl⟩ changedWrite_committed
+        FullMemory.step writeMemFree writePre S₂ changedWrite := by
+  have h := trace_mem_extract exactVC_complete exactVC_positionBinding
+    exactVC_updateBinding writeMemFree 1 writeTrace (fun _ => changedWrite) writePre
+    ⟨rfl, rfl, rfl⟩ (fun k hk => by
+      obtain rfl : k = 0 := by omega
+      exact changedWrite_committed)
+  exact ⟨_, h.1 1 le_rfl, h.2 0 Nat.one_pos⟩
 
 /-- A valid update-binding failure: `(zeroMemory, true)` accepts the same opening
 as `(zeroMemory, false)`, which `appendBitVC.commit` produces, but is itself not
@@ -218,43 +251,6 @@ theorem appendBitBreak_wins :
   · intro heq
     have hbit : true = false := congrArg Prod.snd heq
     exact Bool.noConfusion hbit
-
-/-! ## Counterexample to `MemoryBridge` without update binding -/
-
-private def appendBitMemFree : MemFreePredicate :=
-  fun _ _ _ _ => True
-
-private def appendBitPre : FullVMState appendBitVC :=
-  ⟨0, fun _ => 0, zeroMemory⟩
-
-private def appendBitCommittedPre : CommittedVMState appendBitVC :=
-  ⟨appendBitPre.pc, appendBitPre.regs, appendBitVC.commit appendBitPre.mem⟩
-
-private def appendBitMalformedPost : CommittedVMState appendBitVC :=
-  ⟨appendBitPre.pc, appendBitPre.regs, (zeroMemory, true)⟩
-
-private theorem appendBitMalformedStep :
-    committedStep appendBitMemFree appendBitCommittedPre appendBitMalformedPost := by
-  refine ⟨.write false false false zeroMemory, ?_⟩
-  simp [CommittedMemory.step, CommittedMemory.write, appendBitMemFree, appendBitCommittedPre,
-    appendBitMalformedPost, appendBitPre, appendBitVC, exactVC, zeroMemory]
-
-private theorem appendBitMalformedPost_not_representable :
-    ¬∃ S₂ : FullVMState appendBitVC, CommitInv appendBitMalformedPost S₂ := by
-  rintro ⟨S₂, _, _, hmem⟩
-  have hbit : true = false := congrArg Prod.snd hmem
-  exact Bool.noConfusion hbit
-
-/-- Without update binding, the exact antecedent of the memory bridge can hold
-while its representation conclusion is impossible. This is the executable
-form of the attack that motivated `UpdateBinding`: verification accepts the
-second commitment even though it is not `commit m` for any full memory `m`. -/
-example :
-    CommitInv appendBitCommittedPre appendBitPre ∧
-    committedStep appendBitMemFree appendBitCommittedPre appendBitMalformedPost ∧
-    ¬∃ S₂ : FullVMState appendBitVC, CommitInv appendBitMalformedPost S₂ :=
-  ⟨⟨rfl, rfl, rfl⟩, appendBitMalformedStep,
-    appendBitMalformedPost_not_representable⟩
 
 /-- `appendBitVC` satisfies completeness and position binding, as well as the
 away-from-`addr` agreement property proved by

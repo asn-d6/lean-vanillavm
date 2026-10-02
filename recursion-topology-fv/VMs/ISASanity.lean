@@ -17,6 +17,14 @@ security.
 namespace VanillaZkVM
 namespace ISASanity
 
+/-- A byte-addressed memory address. -/
+private abbrev Addr : Type := ℕ
+/-- A byte stored in memory. -/
+private abbrev Byte : Type := ℕ
+
+/-- The paper's byte-addressed VM state `S = (pc, regs, mem)`. -/
+private abbrev VMState : Type := VMStateWith (Addr → Byte)
+
 private def systemFor (op : ISA.OperationClass) : ISA.System Addr Byte where
   code := fun _ => op
   memFreePred := fun _ _ _ _ _ => True

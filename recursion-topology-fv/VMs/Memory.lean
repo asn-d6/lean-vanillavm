@@ -12,8 +12,7 @@ rather than defining a second kind of memory commitment, and assumes
 `UpdateBinding` supplies the write guarantee this argument needs: the commitment
 after an accepted write must equal `commit` of the updated full memory. Without
 it, a write could be accepted into a commitment that no full memory maps to, and
-reconstruction would have no state to produce (`MemorySanity` exhibits exactly
-that).
+reconstruction would have no state to produce.
 
 * **Commitment injectivity:** `mem_eq_of_commit_eq`.
 * **State representation:** `FullVMState` and `CommitInv`.
@@ -22,16 +21,8 @@ that).
   `CommittedVMState`, ch03) and `FullMemory.read`/`.write`/`.step` (the `φ`
   predicates over `FullVMState`, ch01). `MemStep` sits outside both namespaces
   because one `MemStep` supplies the data checked by both predicates.
-  `committedStep` says that some such `MemStep` exists, without requiring its
-  caller to provide that value. A concrete ISA may add program and register
-  checks before using this relation as `StepInterface.stepCommitted`.
-* **Per-step extractability:** `step_mem_extract`, turning a committed-memory
-  step into a full-memory step (given `CommitInv` for both endpoint states).
 * **Write reconstruction:** `commit_update` and `commitInv_write`, which
   establish `CommitInv` after a write.
-* **Memory bridge:** `step_reconstruct_exact`, which reconstructs the next
-  full-memory state for a specified `MemStep`, and `step_reconstruct`, which
-  hides that witness for `StepInterface.MemoryBridge`.
 * **Whole-trace extractability:** `trace_mem_extract`, chaining the per-step
   lemmas by induction along a whole committed trace (with
   `stepReconstruct`/`reconstructTrace`/`chooseMemStep`).
@@ -68,9 +59,8 @@ theorem mem_eq_of_commit_eq {VC : VectorCommitment}
 /-! ## Full-memory states and their committed representation -/
 
 /-- Full VM state using the address and value types chosen by the commitment:
-memory is the total map `VC.Index → VC.Value`. It uses the same `pc`, `regs`,
-and `mem` structure as `VMState`; only the type of `mem` differs. When the index
-and value types are both `ℕ`, this gives the paper's `Addr → Byte` memory.
+memory is the total map `VC.Index → VC.Value`. When the index and value types
+are both `ℕ`, this gives the paper's `Addr → Byte` memory.
 
 Paper: VM state in ch01. -/
 abbrev FullVMState (VC : VectorCommitment) : Type := VMStateWith (VC.Index → VC.Value)
@@ -193,107 +183,9 @@ def step (memFreePred : MemFreePredicate) (S₁ S₂ : FullVMState VC) : MemStep
 
 end FullMemory
 
-/-- The memory-only relation between two committed states. It holds when there
-is a `MemStep` whose memory checks pass; for a read or write that value includes
-the required opening proof. A concrete ISA can add program and register checks
-before using this relation as `StepInterface.stepCommitted`.
-
-Paper: the memory component of `eq:step-bus2` and the per-step opening witness
-in `prop:memory-extractability` (ch03/ch05). -/
-def committedStep (memFreePred : MemFreePredicate)
-    (Ŝ₁ Ŝ₂ : CommittedVMState VC) : Prop :=
-  ∃ w : MemStep VC, CommittedMemory.step memFreePred Ŝ₁ Ŝ₂ w
-
-/-! ## The per-step memory-extractability lemma -/
-
-/-- **Memory extractability, one step.** Completeness, position binding, and
-update binding lift a committed-memory step to a full-memory step. If
-`CommitInv Ŝ₁ S₁`, `CommitInv Ŝ₂ S₂`, and
-`CommittedMemory.step memFreePred Ŝ₁ Ŝ₂ w` hold, then
-`FullMemory.step memFreePred S₁ S₂ w` holds for the same witness `w`.
-
-This theorem checks two full-memory states already supplied by its caller. In
-particular, it assumes `CommitInv Ŝ₂ S₂`; it does not construct `S₂` or prove
-that relation. `step_reconstruct` below supplies the stronger form needed to
-build a full-memory trace from only its initial state.
-
-This is the first place `PositionBinding` and `UpdateBinding` are consumed. The
-proof mirrors the paper's Step A, minus probabilities: `addr`, `v`, `vOld`, `π`
-are the typed fields of `w : MemStep VC`, so nothing casts. The write case names
-the point update of `S₁.mem` via `classical` (there is no `DecidableEq` on the
-abstract `VC.Index`).
-
-Paper: `prop:memory-extractability` (ch05), restricted to the memory-only
-`CommittedMemory.step`/`FullMemory.step` interface above. -/
-theorem step_mem_extract
-    (hComplete : VC.Complete) (hpos : VC.PositionBinding) (hupd : VC.UpdateBinding)
-    (memFreePred : MemFreePredicate)
-    (S₁ S₂ : FullVMState VC) (Ŝ₁ Ŝ₂ : CommittedVMState VC) (w : MemStep VC)
-    (h1 : CommitInv Ŝ₁ S₁) (h2 : CommitInv Ŝ₂ S₂)
-    (hstep : CommittedMemory.step memFreePred Ŝ₁ Ŝ₂ w) :
-    FullMemory.step memFreePred S₁ S₂ w := by
-  unfold CommitInv at h1 h2
-  obtain ⟨hpc1, hreg1, hmem1⟩ := h1
-  obtain ⟨hpc2, hreg2, hmem2⟩ := h2
-  cases w with
-  | read addr v π =>
-    simp only [CommittedMemory.step, CommittedMemory.read] at hstep
-    simp only [FullMemory.step, FullMemory.read]
-    obtain ⟨hreg, hmemEq, hverify⟩ := hstep
-    refine ⟨?_, ?_, ?_⟩
-    · rw [hpc1, hreg1, hpc2, hreg2] at hreg; exact hreg
-    · -- Compare the opening produced from the full memory with the opening
-      -- stored in `MemStep.read`.
-      have hadv : VC.verify (VC.commit S₁.mem) addr v π := by rw [← hmem1]; exact hverify
-      exact hpos (VC.commit S₁.mem) addr (S₁.mem addr) v (VC.openProof S₁.mem addr) π
-        (hComplete S₁.mem addr) hadv
-    · -- `S₂.mem = S₁.mem`: the committed memories are equal, so the memories are.
-      apply mem_eq_of_commit_eq hComplete hpos
-      rw [← hmem1, ← hmem2]; exact hmemEq
-  | write addr v vOld π =>
-    simp only [CommittedMemory.step, CommittedMemory.write] at hstep
-    simp only [FullMemory.step, FullMemory.write]
-    obtain ⟨hreg, hv1, hv2⟩ := hstep
-    classical
-    -- Rewrite the two openings using the commitments of `S₁.mem` and `S₂.mem`.
-    rw [hmem1] at hv1  -- hv1 : VC.verify (VC.commit S₁.mem) addr vOld π
-    rw [hmem2] at hv2  -- hv2 : VC.verify (VC.commit S₂.mem) addr v π
-    -- Position binding at `addr` on each endpoint.
-    have haddr1 : S₁.mem addr = vOld :=
-      hpos (VC.commit S₁.mem) addr (S₁.mem addr) vOld (VC.openProof S₁.mem addr) π
-        (hComplete S₁.mem addr) hv1
-    have haddr2 : S₂.mem addr = v :=
-      hpos (VC.commit S₂.mem) addr (S₂.mem addr) v (VC.openProof S₂.mem addr) π
-        (hComplete S₂.mem addr) hv2
-    -- The shared path opens `VC.commit S₁.mem` to `S₁.mem addr`.
-    have hopen1 : VC.verify (VC.commit S₁.mem) addr (S₁.mem addr) π := by
-      rw [haddr1]; exact hv1
-    -- Update binding shows `Ŝ₂.mem` equals `commit` of the point update of `S₁.mem`;
-    -- injectivity of `commit` then identifies `S₂.mem` with that point-update.
-    have key : VC.commit S₂.mem
-        = VC.commit (fun k => if k = addr then v else S₁.mem k) :=
-      hupd S₁.mem (fun k => if k = addr then v else S₁.mem k) addr v
-        (VC.commit S₂.mem) π (if_pos rfl) (fun k hk => if_neg hk) hopen1 hv2
-    have hfun : (fun k => if k = addr then v else S₁.mem k) = S₂.mem :=
-      mem_eq_of_commit_eq hComplete hpos key
-    refine ⟨?_, haddr2, ?_⟩
-    · rw [hpc1, hreg1, hpc2, hreg2] at hreg; exact hreg
-    · intro j hj
-      have hj2 : S₂.mem j = (if j = addr then v else S₁.mem j) := (congrFun hfun j).symm
-      rw [hj2, if_neg hj]
-  | other =>
-    simp only [CommittedMemory.step] at hstep
-    simp only [FullMemory.step]
-    obtain ⟨hreg, hmemEq⟩ := hstep
-    refine ⟨?_, ?_⟩
-    · rw [hpc1, hreg1, hpc2, hreg2] at hreg; exact hreg
-    · apply mem_eq_of_commit_eq hComplete hpos
-      rw [← hmem1, ← hmem2]; exact hmemEq
-
 /-! ## Preserving `CommitInv` across a write
 
-`step_mem_extract` consumes `CommitInv` on both endpoints; the two lemmas here
-establish it after a write. From `CommitInv Ŝ₁ S₁` and
+The two lemmas here establish `CommitInv` after a write. From `CommitInv Ŝ₁ S₁` and
 `CommittedMemory.write … Ŝ₁ Ŝ₂ …`, the full-memory state whose memory is
 `S₁.mem` point-updated at `addr` represents `Ŝ₂`. This is where update binding
 is essential: position binding constrains only accepted values, whereas update
@@ -445,60 +337,6 @@ private theorem reconstructed_step_full
     refine ⟨?_, trivial⟩
     rw [hpc, hregs] at hsem
     exact hsem
-
-/-- **One-step reconstruction for a specified `MemStep`.** From
-`CommitInv Ŝ₁ S₁` and `CommittedMemory.step … Ŝ₁ Ŝ₂ w`, construct a
-full-memory state `S₂` such that `CommitInv Ŝ₂ S₂` and
-`FullMemory.step … S₁ S₂ w` both hold for that same `w`.
-
-Concretely, `S₂` takes its program counter and registers from `Ŝ₂`. A read or
-non-memory operation keeps `S₁.mem`; a write changes only its stated address.
-Update binding proves that this constructed memory commits to `Ŝ₂.mem`.
-
-Unlike `step_mem_extract`, this theorem does not assume `CommitInv Ŝ₂ S₂`.
-It proves that relation by preserving memory on reads/other operations and
-point-updating memory on writes. Retaining the same `w` lets a later ISA layer
-show that the reconstructed step executes the operation selected by the
-program.
-
-Paper: inductive construction in `rem:mem-inheritance` and Step 6 of
-`thm:main` (ch05). -/
-theorem step_reconstruct_exact
-    (hComplete : VC.Complete) (hpos : VC.PositionBinding) (hupd : VC.UpdateBinding)
-    (memFreePred : MemFreePredicate)
-    (S₁ : FullVMState VC) (Ŝ₁ Ŝ₂ : CommittedVMState VC) (w : MemStep VC)
-    (hInv : CommitInv Ŝ₁ S₁)
-    (hstep : CommittedMemory.step memFreePred Ŝ₁ Ŝ₂ w) :
-    ∃ S₂ : FullVMState VC,
-      CommitInv Ŝ₂ S₂ ∧ FullMemory.step memFreePred S₁ S₂ w := by
-  let S₂ := stepReconstruct S₁ Ŝ₂ w
-  have hInv₂ : CommitInv Ŝ₂ S₂ :=
-    commitInv_step hComplete hpos hupd memFreePred S₁ Ŝ₁ Ŝ₂ w hInv hstep
-  exact ⟨S₂, hInv₂,
-    reconstructed_step_full hComplete hpos memFreePred S₁ Ŝ₁ Ŝ₂ w hInv hstep⟩
-
-/-- **Realization of `StepInterface.MemoryBridge`.** From `CommitInv Ŝ₁ S₁`
-and `committedStep … Ŝ₁ Ŝ₂`, construct a full-memory state `S₂` represented by
-`Ŝ₂` and prove that some `MemStep` gives a valid full-memory transition from
-`S₁` to `S₂`.
-
-Unlike `step_reconstruct_exact`, the caller does not choose a particular
-`MemStep`; `committedStep` supplies one. This is the conclusion required by
-`StepInterface`.
-
-Paper: inductive construction in `rem:mem-inheritance` and Step 6 of
-`thm:main` (ch05). -/
-theorem step_reconstruct
-    (hComplete : VC.Complete) (hpos : VC.PositionBinding) (hupd : VC.UpdateBinding)
-    (memFreePred : MemFreePredicate)
-    (S₁ : FullVMState VC) (Ŝ₁ Ŝ₂ : CommittedVMState VC)
-    (hInv : CommitInv Ŝ₁ S₁) (hstep : committedStep memFreePred Ŝ₁ Ŝ₂) :
-    ∃ S₂ : FullVMState VC,
-      CommitInv Ŝ₂ S₂ ∧ ∃ w : MemStep VC, FullMemory.step memFreePred S₁ S₂ w := by
-  obtain ⟨w, hw⟩ := hstep
-  obtain ⟨S₂, hInv₂, hfull⟩ :=
-    step_reconstruct_exact hComplete hpos hupd memFreePred S₁ Ŝ₁ Ŝ₂ w hInv hw
-  exact ⟨S₂, hInv₂, w, hfull⟩
 
 /-- **Memory extractability, whole trace.** Given a committed trace `Ŝ`, its
 sequence `w : ℕ → MemStep VC` (each value certifying a committed step), and an

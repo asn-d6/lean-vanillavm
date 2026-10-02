@@ -35,7 +35,7 @@ change (see notes below the table).
 | Argument system Π=(Prove,Verify) | `VanillaZkVM.ArgumentSystem` | frozen | proved | ✓ | ✓ | Dmitry 2026-07-29 |
 | Knowledge soundness (`def:extractable`) | `VanillaZkVM.KnowledgeSound` | frozen | proved | ✓ | ✓ | Dmitry 2026-07-29 |
 | — (consistency floor for KS) | `VanillaZkVM.knowledgeSound_trivialAS` | scaffolding | proved (n/a) | n/a | n/a | Dmitry 2026-07-29 |
-| VM state S=(pc,regs,mem) (ch01) | `VanillaZkVM.VMStateWith` / `VMState` | support | proved | ✓ | ✓ | Dmitry 2026-07-29 |
+| VM state S=(pc,regs,mem) (ch01) | `VanillaZkVM.VMStateWith` | support | proved | ✓ | ✓ | Dmitry 2026-07-29 |
 | Committed state Ŝ (ch02) | `VanillaZkVM.CommittedVMState` | support | proved | ✓ | ✓ | Dmitry 2026-07-29 |
 | Correct-execution relation R* (`eq:relation-star`) | `VanillaZkVM.ZkVM.Rstar` | frozen | proved | — (see §) | ✗ (see ‡) | _re-review pending_ (previously Dmitry 2026-07-29) |
 | Correct-trace extractability (`def:cte`) | `VanillaZkVM.ZkVM.CTE` | frozen | proved | — (see §) | ✗ (see †) | _re-review pending_ (previously Dmitry 2026-07-29) |
@@ -84,7 +84,7 @@ abstracts the PC/register transition and cannot itself connect a separate
 
 For these rows, human review must separately check (a) that the read/write
 opening and memory equations match the paper's memory slice, (b) that
-`step_reconstruct_exact` constructs the next represented state without assuming
+`trace_mem_extract` constructs each next represented state without assuming
 that the second committed state already represents a full state, and (c) that
 no row is marked complete merely because
 the later ISA/bus conjuncts live in another module. This distinguishes a
@@ -95,9 +95,8 @@ faithful memory component from the complete committed `φ̂_step`.
 | full/committed memory invariant (`rem:mem-inheritance`) | `VanillaZkVM.CommitInv` | proved | — | — | _unreviewed_ |
 | committed memory read/write (`eq:op-mem-comm-read`, `eq:op-mem-comm-write`) | `VanillaZkVM.CommittedMemory.read` / `CommittedMemory.write` | proved | — | — | _unreviewed_ |
 | full-memory read/write (`eq:mem-op-read`, `eq:mem-op-write`) | `VanillaZkVM.FullMemory.read` / `FullMemory.write` | proved | — | — | _unreviewed_ |
-| committed/full memory step (memory component of `φ̂_step`/`φ_step`) | `VanillaZkVM.CommittedMemory.step` / `FullMemory.step` / `VanillaZkVM.committedStep` | proved | — | — | _unreviewed_ |
-| one-step memory lift (`prop:memory-extractability`) | `VanillaZkVM.step_mem_extract` | proved | — | — | _unreviewed_ |
-| memory-inheritance step constructing the next full state (`rem:mem-inheritance`, `thm:main` Step 6) | `VanillaZkVM.step_reconstruct_exact` / `VanillaZkVM.step_reconstruct` / `VanillaZkVM.TwoStep.System.memoryBridge` / `VanillaZkVM.MultiStep.System.memoryBridge` | proved | — | — | _unreviewed_ |
+| committed/full memory step (memory component of `φ̂_step`/`φ_step`) | `VanillaZkVM.CommittedMemory.step` / `FullMemory.step` | proved | — | — | _unreviewed_ |
+| memory-inheritance step constructing the next full state (`rem:mem-inheritance`, `thm:main` Step 6) | `VanillaZkVM.trace_mem_extract` | proved | — | — | _unreviewed_ |
 | trace reconstruction invariant (`rem:mem-inheritance`) | `VanillaZkVM.trace_mem_extract` | proved | — | — | _unreviewed_ |
 | — (joint satisfiability model, I6) | `VanillaZkVM.MemorySanity.exactVC_bindingAssumptions` | proved (n/a) | — | — | _unreviewed_ |
 | — (punctured-condition countermodel, I6) | `VanillaZkVM.MemorySanity.appendBitVC_not_updateBinding` | proved (n/a) | — | — | _unreviewed_ |
@@ -139,7 +138,6 @@ code version.
 | disjunctive `φ_step` (`eq:step`) | `VanillaZkVM.ISA.System.stepPlain` | proved | — | — | _unreviewed_ |
 | program-selected committed operation, without bus (`eq:step-bus2`) | `VanillaZkVM.ISA.System.committedOperation` / `VanillaZkVM.ISA.System.committedStep` | proved | — | — | _unreviewed_ |
 | instruction selection by `code[pc]` (`eq:op`, `eq:phiop`) | `VanillaZkVM.ISA.System.stepPlain_iff_operation_at_pc` | proved | — | — | _unreviewed_ |
-| non-write operations preserve memory (ch01/ch03) | `VanillaZkVM.ISA.System.operation_preserves_memory_unless_write` | proved | — | — | _unreviewed_ |
 | committed/full operation correspondence (`prop:memory-extractability`, `thm:main` Step 6) | `VanillaZkVM.ISA.System.committedOperation_stepPlain` | proved | — | — | _unreviewed_ |
 
 ## Segment bus

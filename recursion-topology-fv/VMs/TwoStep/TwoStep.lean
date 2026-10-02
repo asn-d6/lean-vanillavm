@@ -164,8 +164,8 @@ those boundaries before deferring to the final SNARK.
 The segment relation retains `MemStep` witnesses because memory openings are
 needed for extraction, but those witnesses no longer define the public
 execution semantics. `ISA.System.committedOperation` proves that each witness
-agrees with the program-selected operation, and `memoryBridge` reconstructs a
-plain `stepPlain` transition from it.
+agrees with the program-selected operation, and `traceValid_full` reconstructs
+plain `stepPlain` transitions from it.
 
 Paper: `def:cte` and `prop:memory-extractability` (ch05). This toy omits the bus,
 concrete opcode semantics, and recursive convert/combine/embed layers. -/
@@ -189,25 +189,6 @@ def memoryStepInterface : StepInterface sys.toZkVM where
   CommittedState := CommittedVMState sys.VC
   represents := CommitInv
   stepCommitted := sys.isa.committedStep
-
-/-- `StepInterface.MemoryBridge` for this VM. Completeness, position binding, and
-update binding let `step_reconstruct_exact` construct a represented next
-full-memory state; `committedOperation_stepPlain` then proves the single
-`sys.toZkVM.step` predicate.
-
-Paper: `prop:memory-extractability`, `rem:mem-inheritance`, and Step 6 of
-`thm:main` (ch05), specialized to the two-step toy. -/
-theorem memoryBridge
-    (hComplete : sys.VC.Complete) (hpos : sys.VC.PositionBinding)
-    (hupd : sys.VC.UpdateBinding) :
-    sys.memoryStepInterface.MemoryBridge := by
-  intro Ŝ₁ Ŝ₂ S₁ hInv hstep
-  obtain ⟨w, hw⟩ := hstep
-  obtain ⟨S₂, hInv₂, hfull⟩ :=
-    step_reconstruct_exact hComplete hpos hupd sys.isa.selectedMemFreePred
-      S₁ Ŝ₁ Ŝ₂ w hInv hw.1
-  refine ⟨S₂, hInv₂, ?_⟩
-  exact sys.isa.committedOperation_stepPlain S₁ S₂ Ŝ₁ Ŝ₂ w hInv hInv₂ hw hfull
 
 /-- **Assumptions for the two-step zkVM.** This structure collects the two proof
 systems' knowledge-soundness assumptions and the three properties used to

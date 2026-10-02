@@ -333,8 +333,8 @@ running time); `Preliminaries/VectorCommitment.lean` has `VectorCommitment` with
 `PositionBinding`, and `UpdateBinding` (perfect); and `Preliminaries/HashCommitment.lean` has
 `HashCommitment` with `CollisionResistant`
 (perfect: injective `hash`). `VMs/Memory.lean` reconstructs full memory from a
-known initial memory and per-step `MemStep` witnesses, realizes the frozen
-`MemoryBridge` by constructing each next full-memory state, and `VMs/TwoStep/TwoStep.lean`
+known initial memory and per-step `MemStep` witnesses by constructing each next
+full-memory state, and `VMs/TwoStep/TwoStep.lean`
 composes that reconstruction into
 `TwoStep.System.cte`. `VMs/ISA.lean` supplies the representative five-class
 plain predicate, connects its selected operation to each explicit `MemStep`,
@@ -353,10 +353,8 @@ verifier for that base case and proves the probability-free main CTE theorem.
 **(a) Committed memory / memory-commitment properties — memory core connected
 to the representative ISA.** `VMs/Memory.lean` now formalizes the perfect
 position/update-binding memory slice: committed/full read and write equations,
-the `CommitInv` relation, conditional `step_mem_extract`,
-`step_reconstruct`/`TwoStep.System.memoryBridge` (which produce each next
-represented state), and
-`trace_mem_extract`; `TwoStep.System.cte` composes it with the
+the `CommitInv` relation, and `trace_mem_extract` (which produces each next
+represented state); `TwoStep.System.cte` composes it with the
 two-layer toy. `VMs/TwoStep/TwoStepSanity.lean` gives a permanent accepting joint model for
 the theorem's hypotheses. The append-bit countermodel demonstrates that
 agreement of accepted openings away from the updated address does not provide
