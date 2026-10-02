@@ -5,9 +5,7 @@ import Mathlib
 
 These definitions are used as memory-commitments by the layers above.
 
-Like every security notion in `Preliminaries/`, binding is stated in the
-**perfect**, probability-free style: "no two accepted openings disagree" and "the
-commitment map is injective", with no security parameter and no negligibility.
+Binding notions are idealized. See `IDEALIZATION.md`.
 -/
 
 namespace VanillaZkVM
@@ -28,14 +26,14 @@ structure VectorCommitment where
 
 namespace VectorCommitment
 
-/-- **Commitment completeness** (perfect): an honest opening always verifies.
+/-- **Commitment completeness**: an honest opening always verifies.
 This makes explicit the correctness property used by the binding reductions,
 as requested by the instruction preceding `def:binding` in ch05. -/
 def Complete (VC : VectorCommitment) : Prop :=
   ∀ (m : VC.Index → VC.Value) (i : VC.Index),
     VC.verify (VC.commit m) i (m i) (VC.openProof m i)
 
-/-- **Position-binding** (perfect): no commitment admits two accepted openings of
+/-- **Position-binding**: no commitment admits two accepted openings of
 different values at the same position.
 
 Paper: `def:binding`. -/
@@ -43,7 +41,7 @@ def PositionBinding (VC : VectorCommitment) : Prop :=
   ∀ (C : VC.Com) (i : VC.Index) (v v' : VC.Value) (pi pi' : VC.OpenProof),
     VC.verify C i v pi → VC.verify C i v' pi' → v = v'
 
-/-- **Update-binding** (perfect, `def:binding`, ch05): suppose `m'` is obtained
+/-- **Update-binding** (`def:binding`, ch05): suppose `m'` is obtained
 from `m` by changing only `addr`, whose new value is `x`. If the same opening
 `pi` verifies the old value against `VC.commit m` and the new value against a
 candidate commitment `C'`, then `C'` must equal `VC.commit m'`.

@@ -9,13 +9,7 @@ Scheme-independent definitions: relations, non-interactive arguments, and straig
 * `ArgumentSystem` — a non-interactive argument
 * `Extractor` + `KnowledgeSound` — straight-line knowledge soundness.
 
-## Soundness is modeled as *perfect straight-line extraction* (no probabilities)
-
-Every security notion in `Preliminaries/` — here and in the commitment layer — is
-phrased in a **perfect**, probability-free style: the relevant "bad event" simply
-never happens. For knowledge soundness this reads "whenever a proof verifies, the
-extractor returns a valid witness"; for the commitments, "no two accepted openings
-disagree" and "the commitment map is injective".
+Security notions here are idealized. See `IDEALIZATION.md`.
 -/
 
 namespace VanillaZkVM

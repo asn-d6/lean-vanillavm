@@ -27,13 +27,10 @@ fixed program.
 * `System.toZkVM` — the resulting full-memory zkVM.
 
 ## Main results
-* `System.cte_main` — in the project's probability-free model, every accepted
-  proof for the assembled VM yields a valid full-memory execution trace.
+* `System.cte_main` — every accepted proof for the assembled VM yields a valid
+  full-memory execution trace.
 
-The theorem checks the reduction structure of `thm:main`; it does not supply
-running-time or success-probability bounds. The paper itself also notes that
-composing straight-line (non-rewinding) extraction through recursive proof
-systems relies on an idealized relativized-SNARK assumption (`rem:idealized`).
+The assumptions are idealized. See `IDEALIZATION.md`.
 
 Paper: the zkVM construction in ch03--ch04 and `thm:main` in ch05.
 -/
@@ -177,7 +174,7 @@ private theorem multi_step_assumptions (h : sys.Assumptions) :
   ⟨sys.leaf_sound h.segment, h.combineSound, h.convertSound, h.embedSound,
     h.complete, h.positionBinding, h.updateBinding⟩
 
-/-- **Main probability-free security theorem for the assembled Vanilla VM.**
+/-- **Main security theorem for the assembled Vanilla VM.**
 
 An accepted embed proof is recursively reduced to its base segment proofs. For
 each segment, `segment_extract` proves that the step, Keccak, Poseidon, and

@@ -7,8 +7,7 @@ A hash-based commitment, kept separate from the vector commitment in `VectorComm
 independent. For example, memory reconstruction consumes only the vector-commitment binding notions, while the bus consumes only
 collision-resistance.
 
-As everywhere in `Preliminaries/`, the notion is the **perfect**, probability-free specialization: plain injectivity of
-the commitment map.
+The notion is idealized as plain injectivity. See `IDEALIZATION.md`.
 
 `VMs/Bus.lean` consumes these declarations to identify the four buses extracted
 inside one segment. A concrete VM can then use the resulting committed-step
@@ -26,10 +25,9 @@ structure HashCommitment where
   Digest : Type
   hash : Domain → Digest
 
-/-- **Collision-resistance** (perfect): the commitment map is injective.
+/-- **Collision-resistance**: the commitment map is injective.
 
-Paper: `def:bus-cr`. Lean uses the perfect,
-probability-free version. -/
+Paper: `def:bus-cr`. Idealized: see `IDEALIZATION.md`. -/
 def CollisionResistant (H : HashCommitment) : Prop :=
   ∀ b b' : H.Domain, H.hash b = H.hash b' → b = b'
 
