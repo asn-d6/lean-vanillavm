@@ -4,8 +4,10 @@ import «recursion-topology-fv».Specification.Zkvm
 /-!
 # Correct-trace extractability
 
-This is the central file: what an abstract `ZkVM` (from `Zkvm.lean`) is *meant to
-prove*, and its equivalence with knowledge soundness.
+`CTE` is the security goal of a `ZkVM` (from `Zkvm.lean`): for every valid proof, an extractor
+can recover a private input and a valid execution trace.
+
+This file also provides a theorem that shows equivalence with knowledge soundness.
 
 ## Main definitions
 * the correct-execution relation `Rstar` the system is meant to prove, and the
@@ -13,12 +15,10 @@ prove*, and its equivalence with knowledge soundness.
 * correct-trace extractability `CTE`, stated in VM-native terms.
 
 ## Main results
-* The keystone theorem `cte_iff_knowledgeSound`:
-  `CTE V ↔ KnowledgeSound V.ASstar`.
+* The keystone theorem `cte_iff_knowledgeSound`: `CTE V ↔ KnowledgeSound V.ASstar`.
 
-Concrete systems (the two-step toy in `VMs/TwoStep/`, later the full vanilla VM)
-instantiate `ZkVM` and prove `CTE` — typically by proving `KnowledgeSound ASstar`
-and invoking the equivalence.
+Concrete systems (e.g. the VanillaVM) instantiate `ZkVM` and prove `CTE` —
+typically by proving `KnowledgeSound ASstar` and invoking the equivalence.
 -/
 
 namespace VanillaZkVM
@@ -27,12 +27,17 @@ namespace ZkVM
 
 variable (V : ZkVM)
 
-/-- The correct-execution relation `R*`: statements are boundary claims,
-witnesses are a private input together with a trace, membership is trace
-validity under that private input.
+/-- The correct-execution relation `R*`.
 
-Paper: `eq:relation-star`, whose witness is the trace alone; the private-input
-component is the Lean generalization and is trivial for a deterministic VM. -/
+* Statement: the public statement `x`
+* Witness: private input `w` and a trace `tr`.
+
+`x` and `w` together fix the start state `initial x w` and the end state
+`terminal x w`.
+
+`(x, (w, tr)) ∈ R*` iff `tr` is a valid trace from the start state to the end state.
+
+Unlike the paper, the witness includes private input `w`. This is meant to model non-deterministic zkVMs. -/
 def Rstar : Relation where
   Stmt := V.Stmt
   Wit := V.PrivInput × (ℕ → V.State)
@@ -43,25 +48,14 @@ def ASstar : ArgumentSystem V.Rstar where
   Proof := V.Proof
   verify := V.verify
 
-/-- **Correct-trace extractability** (VM-native form): a single extractor turns
-every accepting proof into a private input and a valid `T`-step execution of the
-claim under that private input.
-
-Paper: `def:cte` in `docs/vanillaVM.pdf`. This is its
-perfect, probability-free core: PPT/probability bookkeeping is out of scope,
-and the full-memory boundary commitment equations belong to a concrete VM instance
-rather than to this abstract statement. The paper's extractor returns only the
-trace; the private-input component is the Lean generalization, and for a
-deterministic VM it carries no information. -/
+/-- **Correct-trace extractability**: an extractor turns every accepting proof into a private input and a valid `T`-step execution of the
+claim under that private input. -/
 def CTE : Prop :=
   ∃ E : V.Stmt → V.Proof → V.PrivInput × (ℕ → V.State),
     ∀ (x : V.Stmt) (p : V.Proof), V.verify x p → V.TraceValid x (E x p).1 (E x p).2
 
-/-- **Keystone.** Correct-trace extractability is exactly knowledge soundness of
-the final argument system for the correct-execution relation `R*`. The proof is
-structural: both sides are "∃ extractor, ∀ accepting (x, p), the output is a
-private input and a valid trace", differing only in packaging the extractor as a
-bare function versus an `Extractor` record.
+/-- **Keystone.** Correct-trace extractability is equivalent to knowledge soundness of
+the final argument system for `R*`.
 
 Paper: `rem:cte-ks`. -/
 theorem cte_iff_knowledgeSound : V.CTE ↔ KnowledgeSound V.ASstar := by

@@ -1,66 +1,37 @@
 import Mathlib
 
 /-!
-# What a zkVM system is
-
-The abstract packaging every concrete VM instantiates: a state type with a step
-predicate, a fixed step count, a private-input type, mappings to initial and
-terminal states, a final verifier, and the trace-validity predicate over it.
-
-A **private input** is data the prover knows but the verifier never sees.
-Deterministic VMs take `PrivInput := Unit` and ignore it; a non-deterministic
-VM uses it to complete the initial state (say, as a read-only list of words the
-program can load into registers) and reflects it in the terminal state as well,
-so the statement contains only the public part of either boundary.
-
-This file deliberately depends on nothing but Mathlib. What the system is meant
-to *prove* — the correct-execution relation `R*`, correct-trace extractability,
-and the keystone equivalence with knowledge soundness — is the specification
-proper and lives in `Cte.lean`, which is the only file in `Specification/` that
-needs `ArgumentSystem.lean`.
+# The definition of an abstract zkVM system
 
 ## Main definitions
-* an abstract `ZkVM` system (compare the zkVM of the vanilla document, stripped
-  to what the security statement needs);
+* ZkVM, an abstract `ZkVM` system
 * `ZkVM.TraceValid`, the validity of a candidate execution trace for a statement.
 
-Concrete systems (the two-step toy in `VMs/TwoStep/`, later the full vanilla VM)
-instantiate `ZkVM` and prove `CTE` from `Cte.lean`.
+Concrete systems (e.g. the VanillaVM) instantiate `ZkVM` and prove `CTE` from `Cte.lean`.
 -/
 
 namespace VanillaZkVM
 
-/-! ## Abstract zkVM systems -/
-
-/-- An abstract zkVM system: a state type with a step predicate, a fixed step
-count `T`, a statement type, a private-input type, `initial`/`terminal`
-mappings that may consult the private input, and the final proof
-type with its verifier.
-
-The mappings `initial`/`terminal` map the statement (what the verifier sees) and
-the private input (what only the prover sees) to an initial and terminal state
-of the computation.
-
-This is abstract packaging, motivated by `def:zkvm` and `def:cte` in
-`docs/vanillaVM.pdf`; a full formalization of `def:zkvm`
-is the job of a concrete VM instance, not of this record. In the paper,
-program code and `T` are fixed system parameters rather than adversary outputs —
-which is why `T` is a field here. Code is absent because the abstract step
-predicate already closes over it.
-
-`PrivInput` generalizes the paper: `def:zkvm` and `def:cte` have no private
-inputs, and their statements determine both boundary states outright. A
-deterministic VM recovers that reading with `PrivInput := Unit` and projections
-that ignore their second argument. -/
+/-- An abstract zkVM system. -/
 structure ZkVM where
+  /-- The VM state. -/
   State : Type
+  /-- `step s s'` holds when the VM can move from `s` to `s'` in one step. Program code is
+  fixed inside this predicate. -/
   step : State → State → Prop
+  /-- The fixed number of steps. A system parameter, as in the paper. -/
   T : ℕ
+  /-- The public input. The verifier sees it. -/
   Stmt : Type
-  PrivInput : Type -- `Unit` for a deterministic VM.
+  /-- Private input to model a non-deterministic zkVM. `Unit` for a deterministic VM. -/
+  PrivInput : Type
+  /-- The start state, from the statement and the private input. -/
   initial : Stmt → PrivInput → State
+  /-- The end state, from the statement and the private input. -/
   terminal : Stmt → PrivInput → State
+  /-- The final proof. -/
   Proof : Type
+  /-- The final verifier. -/
   verify : Stmt → Proof → Prop
 
 namespace ZkVM
