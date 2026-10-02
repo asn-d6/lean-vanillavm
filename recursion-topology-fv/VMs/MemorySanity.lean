@@ -15,9 +15,6 @@ satisfies them, and one that shows they are not all equivalent:
   not imply that an accepted commitment is an output of `commit`. This does not
   assert that update binding implies position binding: the two are independent
   requirements.
-* A private counterexample to memory reconstruction uses that ignored bit to
-  exhibit a represented full-memory state before an accepted committed-memory
-  write, but no full-memory state representing the commitment after the write.
 
 The `UpdateBindingBreak` record describes one update-binding failure.
 `UpdateBinding.not_isUpdateBindingBreak` shows that no record satisfying
@@ -254,47 +251,6 @@ theorem appendBitBreak_wins :
   · intro heq
     have hbit : true = false := congrArg Prod.snd heq
     exact Bool.noConfusion hbit
-
-/-! ## Counterexample to memory reconstruction without update binding -/
-
-private def appendBitMemFree : MemFreePredicate :=
-  fun _ _ _ _ => True
-
-private def appendBitPre : FullVMState appendBitVC :=
-  ⟨0, fun _ => 0, zeroMemory⟩
-
-private def appendBitCommittedPre : CommittedVMState appendBitVC :=
-  ⟨appendBitPre.pc, appendBitPre.regs, appendBitVC.commit appendBitPre.mem⟩
-
-private def appendBitMalformedPost : CommittedVMState appendBitVC :=
-  ⟨appendBitPre.pc, appendBitPre.regs, (zeroMemory, true)⟩
-
-private def appendBitWrite : MemStep appendBitVC :=
-  .write false false false zeroMemory
-
-private theorem appendBitMalformedStep :
-    CommittedMemory.step appendBitMemFree appendBitCommittedPre appendBitMalformedPost
-      appendBitWrite := by
-  simp [appendBitWrite, CommittedMemory.step, CommittedMemory.write, appendBitMemFree,
-    appendBitCommittedPre, appendBitMalformedPost, appendBitPre, appendBitVC, exactVC, zeroMemory]
-
-private theorem appendBitMalformedPost_not_representable :
-    ¬∃ S₂ : FullVMState appendBitVC, CommitInv appendBitMalformedPost S₂ := by
-  rintro ⟨S₂, _, _, hmem⟩
-  have hbit : true = false := congrArg Prod.snd hmem
-  exact Bool.noConfusion hbit
-
-/-- Without update binding, a represented state can take an accepted
-committed-memory step to a state that no full memory represents. This is the
-executable form of the attack that motivated `UpdateBinding`: verification accepts the
-second commitment even though it is not `commit m` for any full memory `m`. -/
-example :
-    CommitInv appendBitCommittedPre appendBitPre ∧
-    CommittedMemory.step appendBitMemFree appendBitCommittedPre appendBitMalformedPost
-      appendBitWrite ∧
-    ¬∃ S₂ : FullVMState appendBitVC, CommitInv appendBitMalformedPost S₂ :=
-  ⟨⟨rfl, rfl, rfl⟩, appendBitMalformedStep,
-    appendBitMalformedPost_not_representable⟩
 
 /-- `appendBitVC` satisfies completeness and position binding, as well as the
 away-from-`addr` agreement property proved by

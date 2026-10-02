@@ -12,8 +12,7 @@ rather than defining a second kind of memory commitment, and assumes
 `UpdateBinding` supplies the write guarantee this argument needs: the commitment
 after an accepted write must equal `commit` of the updated full memory. Without
 it, a write could be accepted into a commitment that no full memory maps to, and
-reconstruction would have no state to produce (`MemorySanity` exhibits exactly
-that).
+reconstruction would have no state to produce.
 
 * **Commitment injectivity:** `mem_eq_of_commit_eq`.
 * **State representation:** `FullVMState` and `CommitInv`.

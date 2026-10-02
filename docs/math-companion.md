@@ -335,11 +335,6 @@ with the full terminal state in the statement.
 `VMs/TwoStep/TwoStepSanity.lean` permanently checks non-vacuity: a one-segment, one-step
 system over `MemorySanity.exactVC` has identity knowledge extractors, an
 accepting final proof, and satisfies `cte`'s complete hypothesis bundle.
-`VMs/MemorySanity.lean` also instantiates the append-bit attack at the bridge level:
-the initial full-memory state represents the first committed-memory state and
-the committed-memory write verifies, but the second commitment has no
-full-memory representative. Thus dropping update binding would
-make the frozen bridge conclusion false, not merely harder to prove.
 
 This remains the non-recursive toy theorem. Section 7 assembles the bus and
 recursion layers into the probability-free VanillaVM theorem. The
