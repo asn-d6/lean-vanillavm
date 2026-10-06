@@ -1,16 +1,16 @@
 # Math companion
 
 The pen-and-paper statements matching the Lean, kept in lockstep with the code
-(agents/CONVENTIONS.md §7). For each frozen-kernel definition and headline theorem this
+(agents/CONVENTIONS.md §7). For each core definition and headline theorem this
 states it in ordinary mathematical notation with its paper citation, so a reviewer can
-compare **paper ↔ companion ↔ Lean** without reading proof internals. The companion,
-`docs/CORRESPONDENCE.md`, and the Lean must agree; a discrepancy is a review blocker.
+compare **paper ↔ companion ↔ Lean** without reading proof internals. The companion
+and the Lean must agree; a discrepancy is a review blocker.
 
 Paper: [`vanillaVM.pdf`](vanillaVM.pdf). Anchors below cite chapters/labels.
 
 ---
 
-## 0. Frozen kernel
+## 0. Core definitions
 
 ### 0.1 Relations and argument systems
 
@@ -33,11 +33,11 @@ exists a single universal straight-line extractor `E` such that
 
     ∀ x, π.   verify x π = 1  ⟹  (x ; E(x, π)) ∈ R.
 
-This is the **perfect / probability-free** form (INVARIANTS.md I8): the bad event
+This is the **perfect / probability-free** form (INVARIANTS.md I5): the bad event
 "verifies but extraction fails" simply never occurs.
 *Lean:* `KnowledgeSound AS`.
 
-**Non-vacuity (consistency floor, I6).** The *trivial* argument system for `R` — a proof
+**Non-vacuity (consistency floor, I3).** The *trivial* argument system for `R` — a proof
 *is* a witness, and `verify x w := ((x ; w) ∈ R)` — is knowledge-sound via the identity
 extractor. This shows `KnowledgeSound` is not `False`; it is **not** a claim that a
 succinct SNARK meets it.
@@ -116,45 +116,9 @@ record). This is the equivalence concrete systems use: instantiate `ZkVM`, prove
 
 ---
 
-## 0.3 Step-interface contract
+## Provisional (commitment layer)
 
-The step predicate is not duplicated:
-
-    isa.step(S₁,S₂) := V.step(S₁,S₂).
-
-A `StepInterface V` supplies a committed-state type `CState`, a representation
-predicate `Rep ⊆ CState × V.State`, and
-
-    stepCommitted : CState × CState → Prop.
-
-`Bus.System` supplies `StepAux`, which contains one segment's bus and one
-transition's `MemStep`, and
-
-    stepWithBus : CState × CState × StepAux → Prop.
-
-The **bus bridge** (`StepInterface.BusBridge stepWithBus`) is
-
-    stepWithBus(Ĉ₁,Ĉ₂,b) ⟹ stepCommitted(Ĉ₁,Ĉ₂).
-
-The segment theorem first uses collision resistance of `Com_bus` to put the
-step and chip checks on one bus. Once `stepWithBus` holds, the concrete
-two-layer instance proves this implication directly from the ISA definitions;
-the bridge itself needs no additional cryptographic assumption.
-
-This is a Lean-only coordination proposition whose concrete instances target
-`lem:segment`; it is not an additional paper claim.
-
-**Non-vacuity.** `VMs/StepSanity.lean` gives an accepting one-step Boolean toggle
-zkVM whose committed/plain representation is equality and which satisfies CTE
-and both bridge propositions. This is only a consistency floor, not a model of
-the Vanilla ISA or its cryptography.
-
----
-
-## Provisional (not frozen — commitment layer)
-
-Stated here for completeness but **expected to change** (I4); see the note in
-`docs/CORRESPONDENCE.md`.
+Stated here for completeness but **expected to change**.
 
 **Vector commitment** (ch02, `Com_mem`). `VC = (Value, Index, Com, OpenProof, commit,
 openProof, verify)`; a vector is a total map `Index → Value`; `verify C i v π` checks
@@ -203,7 +167,7 @@ Digest, hash)`; collision resistance (perfect) is injectivity of `hash`.
 
 ## Trace concatenation (shared helper)
 
-Not part of the frozen kernel, but used by every multi-segment layer. `concatTrace`
+Used by every multi-segment layer. `concatTrace`
 glues `m` length-`Nseg` sub-chains with matching boundary states `d(0), …, d(m)` into
 one length-`m·Nseg` trace; `chain_flatten` proves that if each segment is a valid
 `Nseg`-step `step`-chain from `d(i)` to `d(i+1)`, the glued trace is a valid
@@ -307,7 +271,7 @@ the binding properties directly; explicit bad-event reductions and advantage
 accounting remain assigned to Issues 6 and 10.
 *Lean:* public `reconstructTrace` and
 `trace_mem_extract` (the root-update and single-step lemmas are private),
-`TwoStep.System.memoryStepInterface`, `TwoStep.System.traceValid_full`.
+`TwoStep.System.traceValid_full`.
 
 ### 1.4 Full-memory CTE for the two-step toy
 
@@ -750,7 +714,7 @@ with exactly the same footprint as `TwoStep.System.cte`.
 `CommittedTraceValid`, `traceValid_full`,
 `cte`.
 
-### 4.7 Non-vacuity (I6)
+### 4.7 Non-vacuity (I3)
 
 `VMs/MultiStep/MultiStepSanity.lean` exhibits a concrete system satisfying every
 hypothesis jointly: `N_seg = 1`, `T = 2`, `m = 2`, over `MemorySanity.exactVC`,
@@ -872,18 +836,15 @@ transition. Consequently,
 
     stepWithBus(Ŝ₁,Ŝ₂,(B,w)) ⟹ committedStep(Ŝ₁,Ŝ₂).
 
-This is proved first for `committedOperation` using the exact memory witness
-`w` recovered from the segment. A concrete VM then uses that same `w` to prove
-the `StepInterface.BusBridge` statement that a suitable witness exists; the
-non-recursive demonstration does so in
-`VMs/TwoStep/WithBus.lean`. The conclusion is therefore the existing
-committed relation, not a second VM execution semantics.
+This is proved for `committedOperation` using the exact memory witness `w`
+recovered from the segment; that same `w` is the witness that `committedStep`
+asks for. The conclusion is therefore the existing committed relation, not a
+second VM execution semantics.
 
 *Lean:* `Bus.BusState`, `Bus.HashCall`, `Bus.SegmentBus`, `Bus.StepAux`,
 `Bus.System.stepBus`, `Bus.System.keccakChip`, `Bus.System.poseidonChip`,
 `Bus.System.rangeChip`, `Bus.System.stepWithBus`, and
-`Bus.System.stepWithBus_committedOperation`. The concrete interface
-theorem is `Bus.TwoStepSystem.busBridge`.
+`Bus.System.stepWithBus_committedOperation`.
 
 ### 5.2 Inner proofs and why their recovered buses agree
 
@@ -949,7 +910,7 @@ with
       stepWithBus(Ŝ_i(j),Ŝ_i(j+1),(B_i,w_i(j))).
 
 The recovered execution keeps the function `i ↦ segment_i`; in particular it
-keeps the separate values `B_i`. Apply `BusBridge` to each transition and then
+keeps the separate values `B_i`. Apply `stepWithBus_committedOperation` to each transition and then
 the shared theorem for joining traces:
 
     trace := concatTrace(Nseg,d,(i,j) ↦ Ŝ_i(j),m),

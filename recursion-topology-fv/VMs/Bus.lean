@@ -274,7 +274,7 @@ The memory witness is explicit because read and write openings must remain
 available to the later memory-reconstruction proof.
 
 Paper: `φ̂_step,bus` in `eq:step-bus2` (ch03), under the five-class ISA
-simplification recorded in `docs/CORRESPONDENCE.md`. -/
+simplification. -/
 def stepBus (Ŝ₁ Ŝ₂ : CommittedVMState sys.VC)
     (w : MemStep sys.VC) (bus : SegmentBus) : Prop :=
   match sys.isa.code Ŝ₁.pc with

@@ -62,8 +62,7 @@ that must be checked by a hash chip. A value of this type identifies a class,
 not an exact decoded instruction. This is an intentional simplification, not a
 complete RV32IM opcode enumeration.
 
-Paper: operation taxonomy in ch03, with the deliberate five-operation
-simplification documented in `docs/CORRESPONDENCE.md`. -/
+Paper: operation taxonomy in ch03. -/
 inductive OperationClass where
   | read
   | write
