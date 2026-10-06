@@ -1,5 +1,3 @@
-import Mathlib
-
 /-!
 # A collision-resistant commitment
 
