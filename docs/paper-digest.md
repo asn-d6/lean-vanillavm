@@ -360,7 +360,7 @@ the theorem's hypotheses. The append-bit countermodel demonstrates that
 agreement of accepted openings away from the updated address does not provide
 update binding. `ISA.System.committedOperation` now ties each `MemStep`
 constructor and its address/value to program fetch and the designated
-registers, and the two-step CTE concludes `stepPlain`. `Bus.System.stepBus` now
+registers, and the two-step CTE concludes `ISA.System.step`. `Bus.System.stepBus` now
 adds the bus/chip evidence, while
 `Bus.System.stepWithBus_committedOperation` returns the same recovered
 `MemStep` to that committed ISA relation. `Bus.TwoStepSystem.busBridge`
@@ -385,9 +385,9 @@ accounting remains deferred.
 
 **(c) Representative ISA operations — structure implemented, exact opcodes
 still abstract.** `VMs/ISA.lean` uses the five classes `read`, `write`,
-`arith`, `hash`, and `bin`. It defines the disjunction `stepPlain`, checks
+`arith`, `hash`, and `bin`. It defines the disjunction `ISA.System.step`, checks
 `code[pc]`, makes the read/write memory equations explicit, and assigns
-`stepPlain` to the concrete two-step VM. `VMs/Bus.lean` further divides `bin`
+it to the concrete two-step VM. `VMs/Bus.lean` further divides `bin`
 into its ordinary register check and its range check, and places hash and range
 entries on a segment bus. This represents the paper's division of work, but it
 does not define or verify the paper's individual `op_1..op_20`, Keccak, or

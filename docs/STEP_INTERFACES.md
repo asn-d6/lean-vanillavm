@@ -22,8 +22,8 @@ stepCommitted
 
 ```
 
-`V.step` is the single canonical **plain** step predicate.
-`ISA.System.stepPlain` is the predicate assigned to that field by a concrete
+`V.step` is the single canonical step predicate.
+`ISA.System.step` is the predicate assigned to that field by a concrete
 Vanilla `ZkVM`; it must not become a second, disconnected top-level execution
 relation. `TwoStep.System.toZkVM` makes this assignment in the public two-layer
 toy, and `VanillaVM.System.toZkVM` reuses it in the assembled recursive VM.
@@ -75,7 +75,7 @@ equates them.
 | Layer | Designated module | Required realization |
 |---|---|---|
 | Memory reconstruction | `recursion-topology-fv/VMs/Memory.lean` + concrete VM module | `VMs/Memory.lean` defines `CommitInv`, the memory-only step predicates, and `trace_mem_extract`. The concrete VM packages the appropriate committed relation as a `StepInterface`; `VMs/TwoStep/TwoStep.lean` supplies the current instance. |
-| Plain ISA semantics | `recursion-topology-fv/VMs/ISA.lean` | Define `ISA.System.stepPlain`, connect explicit committed-memory witnesses through `ISA.System.committedOperation`, and assign `stepPlain` directly to both the toy and assembled `ZkVM` instances. |
+| ISA semantics | `recursion-topology-fv/VMs/ISA.lean` | Define `ISA.System.step`, connect explicit committed-memory witnesses through `ISA.System.committedOperation`, and assign it directly to both the toy and assembled `ZkVM` instances. |
 | Segment bus | `recursion-topology-fv/VMs/Bus.lean` + concrete VM connection modules | `Bus.System.stepWithBus` combines the segment step check with the three chip checks. `Bus.System.stepWithBus_committedOperation` proves the implication to the committed ISA operation while preserving the recovered `MemStep`, and `Bus.System.segment_extract` proves that the four buses recovered for one segment are equal. Neither theorem chooses how segments are combined. `VMs/TwoStep/WithBus.lean` demonstrates the non-recursive connection; `VMs/VanillaVM/VanillaVM.lean` derives the recursive leaf extractor from the same segment theorem. |
 
 No other module should introduce a different, unrelated public execution

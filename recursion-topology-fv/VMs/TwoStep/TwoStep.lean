@@ -35,7 +35,7 @@ between them:
    `MemStep` values so the memory openings remain available for reconstruction.
 2. `traceValid_full` — the memory half. `Memory.trace_mem_extract` reconstructs a
    full-memory trace along that committed trace, satisfying `CommitInv` at every
-   state and `ISA.System.stepPlain` at every step.
+   state and `ISA.System.step` at every step.
 
 Traces are `ℕ`-indexed with `< bound` conditions (uniform with `Rstar`,
 and it makes concatenation pure `ℕ`-arithmetic).
@@ -164,8 +164,8 @@ def CommittedTraceValid (x : FinalStmt sys.VC) (Ŝ : ℕ → CommittedVMState sy
 /-! ## The zkVM -/
 
 /-- **The two-step memory toy.** Its state is the *full-memory* VM state and its
-single plain step relation is `ISA.System.stepPlain`. By
-`stepPlain_iff_operation_at_pc`, this is exactly `operation (code S₁.pc)`: the
+single step relation is `ISA.System.step`. By
+`step_iff_operation_at_pc`, this is exactly `operation (code S₁.pc)`: the
 program chooses the operation class rather than an unconstrained witness.
 Reads and writes use the designated registers, and all memory equations are
 explicit. The statement carries full boundary states, and the verifier commits
@@ -175,13 +175,13 @@ The segment relation retains `MemStep` witnesses because memory openings are
 needed for extraction, but those witnesses no longer define the public
 execution semantics. `ISA.System.committedOperation` proves that each witness
 agrees with the program-selected operation, and `traceValid_full` reconstructs
-plain `stepPlain` transitions from it.
+`ISA.System.step` transitions from it.
 
 Paper: `def:cte` and `prop:memory-extractability` (ch05). This toy omits the bus,
 concrete opcode semantics, and recursive convert/combine/embed layers. -/
 def toZkVM : ZkVM where
   State := FullVMState sys.VC
-  step := sys.isa.stepPlain
+  step := sys.isa.step
   T := sys.m * sys.Nseg
   Stmt := FinalStmtFull sys.VC
   PrivInput := Unit
@@ -247,7 +247,7 @@ theorem traceValid_full
   have hseed : CommitInv (Ŝ 0) x.S0 := by rw [hstartc]; exact ⟨rfl, rfl, rfl⟩
   -- Choose a `MemStep` that passes both the memory checks and the program
   -- checks at each transition. Keeping those program checks lets us prove
-  -- `stepPlain` after reconstructing memory.
+  -- `isa.step` after reconstructing memory.
   have hopC : ∀ k, k < sys.m * sys.Nseg →
       sys.isa.committedOperation (Ŝ k) (Ŝ (k + 1))
         (chooseMemStep sys.isa.committedOperation Ŝ k) :=
@@ -275,10 +275,10 @@ theorem traceValid_full
       _ = ⟨x.ST.pc, x.ST.regs, x.ST.mem⟩ := by rw [← hpc, ← hreg, e3]
       _ = x.ST := rfl
   · -- Every reconstructed transition executes the operation selected by
-    -- `code[pc]`, so it satisfies the VM's plain step predicate.
+    -- `code[pc]`, so it satisfies the VM's step predicate.
     intro i hi
     change i < sys.m * sys.Nseg at hi
-    exact sys.isa.committedOperation_stepPlain _ _ _ _ _
+    exact sys.isa.committedOperation_step _ _ _ _ _
       (hinv i (by omega)) (hinv (i + 1) (by omega)) (hopC i hi) (hstepF i hi)
 
 /-- **Two-layer committed-trace extraction.** If both SNARKs are knowledge-sound
@@ -339,7 +339,7 @@ theorem committedTrace_extract (hNseg : 0 < sys.Nseg) (h : sys.Assumptions) :
 `CTE`: `sys.toZkVM.CTE`. Under the extraction hypotheses plus the commitment
 binding assumptions, the two-step VM is correct-trace extractable *over full-memory
 states* — the extractor turns every accepting final proof into a valid full-memory
-trace with the claimed boundaries and `ISA.System.stepPlain` at every step.
+trace with the claimed boundaries and `ISA.System.step` at every step.
 
 Proof: from `committedTrace_extract` get the committed-trace extractor `E`; the full
 extractor commits `x`'s boundaries, runs `E`, and reconstructs the full trace.

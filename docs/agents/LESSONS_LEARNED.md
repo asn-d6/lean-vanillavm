@@ -46,7 +46,7 @@ guard; when a guard becomes a CI check, note that.
   generic term “descriptor” is neither a Lean declaration nor paper vocabulary.
   **Guard:** `ISA.System.committedOperation` performs the concrete
   `MemStep`/register/program wiring, and `TwoStep.System.toZkVM.step` is
-  `ISA.System.stepPlain`; review rejects either a disconnected step predicate
+  `ISA.System.step`; review rejects either a disconnected step predicate
   or generic synonyms for formal witness types.
 
 - **A two-endpoint refinement is not an inductive reconstruction theorem.**

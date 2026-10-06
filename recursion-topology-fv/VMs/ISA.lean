@@ -4,7 +4,7 @@ import «recursion-topology-fv».VMs.Memory
 # An example Instruction Set Architecture (ISA) for a zkVM
 
 An ISA says what one correct step of a zkVM is: run the instruction at the program counter, and change the VM state as
-that instruction specifies. This file defines that step as `stepPlain`. The VMs in this repo use it as `ZkVM.step`, so
+that instruction specifies. This file defines that step as `System.step`. The VMs in this repo use it as `ZkVM.step`, so
 the trace that CTE extracts follows the program.
 
 ## The ISA of this example VM
@@ -35,16 +35,16 @@ file does not fix them. For example, the requirements of an ADD can say `pc₂ =
 * `System` — the ISA: `code`, the PC/register requirements, and the maps from register words to
   memory addresses and values.
 * `System.operation` — the predicate of one class.
-* `System.stepPlain` — one of the five `operation` predicates holds.
-* `System.committedOperation` — like `stepPlain`, but memory is a commitment. A read or write
+* `System.step` — one of the five `operation` predicates holds.
+* `System.committedOperation` — like `System.step`, but memory is a commitment. A read or write
   carries its opening proof in a `MemStep`.
 * `System.committedStep` — some `MemStep` passes `committedOperation`.
 
 ## Main results
-* `System.stepPlain_iff_operation_at_pc` — `stepPlain` holds exactly when the predicate of the
+* `System.step_iff_operation_at_pc` — `System.step` holds exactly when the predicate of the
   class `code[pc₁]` holds.
-* `System.committedOperation_stepPlain` — after memory reconstruction, a step that passes
-  `committedOperation` passes `stepPlain`.
+* `System.committedOperation_step` — after memory reconstruction, a step that passes
+  `committedOperation` passes `System.step`.
 -/
 
 namespace VanillaZkVM
@@ -92,7 +92,7 @@ namespace System
 
 variable {Index Value : Type} (isa : System Index Value)
 
-/-! ## Full operation predicates and the single plain step -/
+/-! ## Full operation predicates and the step predicate -/
 
 /-- The full predicate for one operation class.
 
@@ -118,29 +118,29 @@ def operation (op : OperationClass) (S₁ S₂ : VMStateWith (Index → Value)) 
     | .bin =>
         isa.memFreePred .bin S₁.pc S₁.regs S₂.pc S₂.regs ∧ S₂.mem = S₁.mem
 
-/-- The plain-state step predicate used as `ZkVM.step`. It holds when
+/-- The step predicate used as `ZkVM.step`. It holds when
 one of the five operation-class predicates holds. Each clause checks that the
 class matches the instruction at the current program counter.
 
 The VMs in this repo must use this predicate as their `ZkVM.step`; it is not an
 additional step relation beside `ZkVM.step`. -/
-def stepPlain (S₁ S₂ : VMStateWith (Index → Value)) : Prop :=
+def step (S₁ S₂ : VMStateWith (Index → Value)) : Prop :=
   isa.operation .read S₁ S₂ ∨
   isa.operation .write S₁ S₂ ∨
   isa.operation .arith S₁ S₂ ∨
   isa.operation .hash S₁ S₂ ∨
   isa.operation .bin S₁ S₂
 
-/-- A plain step executes exactly the operation class stored in the program at
-the current program counter. Thus the disjunction in `stepPlain` does not let a
+/-- A step executes exactly the operation class stored in the program at
+the current program counter. Thus the disjunction in `step` does not let a
 proof choose an unrelated operation: the condition `code S₁.pc = op` in
 `operation` fixes the only possible branch.
 
 Paper: instruction selection in `eq:op` and `eq:phiop` (ch01), and the
 disjunctive step predicate `eq:step` (ch03). -/
-theorem stepPlain_iff_operation_at_pc (S₁ S₂ : VMStateWith (Index → Value)) :
-    isa.stepPlain S₁ S₂ ↔ isa.operation (isa.code S₁.pc) S₁ S₂ := by
-  cases hcode : isa.code S₁.pc <;> simp [stepPlain, operation, hcode]
+theorem step_iff_operation_at_pc (S₁ S₂ : VMStateWith (Index → Value)) :
+    isa.step S₁ S₂ ↔ isa.operation (isa.code S₁.pc) S₁ S₂ := by
+  cases hcode : isa.code S₁.pc <;> simp [step, operation, hcode]
 
 /-! ## Connection to committed-memory execution -/
 
@@ -200,7 +200,7 @@ def committedStep {VC : VectorCommitment}
 
 /-- Suppose a committed operation is accepted and memory reconstruction checks
 the same `MemStep` between the corresponding full states. Then those full
-states satisfy `stepPlain`. `CommitInv` supplies the fact that each committed
+states satisfy `step`. `CommitInv` supplies the fact that each committed
 state has the same program counter and registers as its full state.
 
 `TwoStep.System.traceValid_full` uses this theorem to keep opening proofs inside
@@ -209,14 +209,14 @@ execution predicate.
 
 Paper: the committed/full operation correspondence used in
 `prop:memory-extractability` and Step 6 of `thm:main` (ch05). -/
-theorem committedOperation_stepPlain {VC : VectorCommitment}
+theorem committedOperation_step {VC : VectorCommitment}
     (isa : System VC.Index VC.Value)
     (S₁ S₂ : FullVMState VC) (Ŝ₁ Ŝ₂ : CommittedVMState VC) (w : MemStep VC)
     (hInv₁ : CommitInv Ŝ₁ S₁) (hInv₂ : CommitInv Ŝ₂ S₂)
     (hcommitted : isa.committedOperation Ŝ₁ Ŝ₂ w)
     (hfull : FullMemory.step isa.selectedMemFreePred S₁ S₂ w) :
-    isa.stepPlain S₁ S₂ := by
-  rw [isa.stepPlain_iff_operation_at_pc]
+    isa.step S₁ S₂ := by
+  rw [isa.step_iff_operation_at_pc]
   obtain ⟨hpc₁, hregs₁, _⟩ := hInv₁
   obtain ⟨_, hregs₂, _⟩ := hInv₂
   obtain ⟨_, hmatches⟩ := hcommitted

@@ -109,7 +109,7 @@ the PC/register predicates may still specify the exact fixed instruction there.
 The class check and every memory equation are explicit. This issue therefore
 specifies the five-way step structure, not an opcode decoder or an RV32IM
 correctness proof. The `ISASanity` module gives private accepted and rejected
-examples and checks that `stepPlain` can be used directly as `ZkVM.step`.
+examples and checks that `ISA.System.step` can be used directly as `ZkVM.step`.
 The two-step VM now performs that assignment publicly and requires each
 committed `MemStep` to agree with the selected operation before reconstruction.
 The read clause also requires unchanged memory, as stated by `eq:mem-op-read`
@@ -119,7 +119,7 @@ Human review must check more than elaboration: verify that the five classes are
 an explicit representative simplification; that every `operation` contains the
 fetch equation; that read/write address and value fields come from the stated
 registers; that `committedOperation` rejects a mismatched `MemStep`; and that
-`TwoStep.System.toZkVM.step` is exactly `stepPlain`. The reviewer should also
+`TwoStep.System.toZkVM.step` is exactly `ISA.System.step`. The reviewer should also
 check that `indexOfWord` and `valueOfWord` merely convert machine words to the
 memory's address and value types; the actual instruction requirements must
 remain in `memFreePred`.
@@ -135,10 +135,10 @@ code version.
 | operation taxonomy (ch03, deliberately simplified) | `VanillaZkVM.ISA.OperationClass` | proved | — | — | _unreviewed_ |
 | fixed `code` class, selected per-operation `φ'_op`, and register-word interpretation (`eq:phiop`) | `VanillaZkVM.ISA.System` / `VanillaZkVM.ISA.System.selectedMemFreePred` | proved | — | — | _unreviewed_ |
 | `φ_op`, including fetch and memory equations (`eq:phiop`, `eq:phi-read-decomp`, `eq:phi-write-decomp`) | `VanillaZkVM.ISA.System.operation` | proved | — | — | _unreviewed_ |
-| disjunctive `φ_step` (`eq:step`) | `VanillaZkVM.ISA.System.stepPlain` | proved | — | — | _unreviewed_ |
+| disjunctive `φ_step` (`eq:step`) | `VanillaZkVM.ISA.System.step` | proved | — | — | _unreviewed_ |
 | program-selected committed operation, without bus (`eq:step-bus2`) | `VanillaZkVM.ISA.System.committedOperation` / `VanillaZkVM.ISA.System.committedStep` | proved | — | — | _unreviewed_ |
-| instruction selection by `code[pc]` (`eq:op`, `eq:phiop`) | `VanillaZkVM.ISA.System.stepPlain_iff_operation_at_pc` | proved | — | — | _unreviewed_ |
-| committed/full operation correspondence (`prop:memory-extractability`, `thm:main` Step 6) | `VanillaZkVM.ISA.System.committedOperation_stepPlain` | proved | — | — | _unreviewed_ |
+| instruction selection by `code[pc]` (`eq:op`, `eq:phiop`) | `VanillaZkVM.ISA.System.step_iff_operation_at_pc` | proved | — | — | _unreviewed_ |
+| committed/full operation correspondence (`prop:memory-extractability`, `thm:main` Step 6) | `VanillaZkVM.ISA.System.committedOperation_step` | proved | — | — | _unreviewed_ |
 
 ## Segment bus
 
@@ -218,8 +218,8 @@ The assembled system uses `Bus.System.segment_extract` to prove that an
 accepted base segment proof yields the valid committed trace required by the
 recursive `MultiStep` theorem. It does not assume this fact independently. Its
 verifier commits the initial and final full-memory states before invoking the
-embed verifier, and its only plain execution predicate remains
-`ISA.System.stepPlain`.
+embed verifier, and its step predicate remains
+`ISA.System.step`.
 
 The private model in `VMs/VanillaVM/VanillaVMSanity.lean` witnesses that the
 complete assumption structure and an accepted proof can occur together. Human

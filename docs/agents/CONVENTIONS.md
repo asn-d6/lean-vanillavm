@@ -44,7 +44,7 @@ layer.
 - **Derive, don't re-state.** New VM = instance of `ZkVM`. New relation = built via `Relation`. New
   security property = phrased with the frozen predicates. If you find yourself copying the shape of
   `KnowledgeSound`/`CTE`, stop — you almost certainly want to instantiate, not fork.
-- **One canonical step chain.** `ZkVM.step` is `stepPlain`. Committed-memory and bus-deferred
+- **One canonical step chain.** `ZkVM.step` is `ISA.System.step`. Committed-memory and bus-deferred
   predicates connect through `StepInterface`; their concrete declarations live only in the modules
   assigned by `docs/STEP_INTERFACES.md`. Do not introduce a parallel public binary "step" relation
   in a convenience module.

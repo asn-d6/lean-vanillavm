@@ -212,7 +212,7 @@ theorem execution_extract (hNseg : 0 < sys.segment.Nseg) (h : sys.Assumptions) :
 
 /-- The full-memory two-layer zkVM whose segment verifier is backed by the
 reusable bus system. Its state and step predicate remain `FullVMState` and
-`ISA.System.stepPlain`.
+`ISA.System.step`.
 
 Paper: the non-recursive two-layer specialization of `def:zkvm`. -/
 def toZkVM : ZkVM := sys.toTwoStep.toZkVM
@@ -221,7 +221,7 @@ def toZkVM : ZkVM := sys.toTwoStep.toZkVM
 
 `execution_extract` supplies a committed execution while preserving the bus
 evidence for each segment. The existing memory theorem then reconstructs a
-full-memory trace satisfying `ISA.System.stepPlain`.
+full-memory trace satisfying `ISA.System.step`.
 
 This is not the complete recursive VanillaVM theorem. Its purpose is to show
 that the reusable segment result can be used in an actual `ZkVM`; the assembled

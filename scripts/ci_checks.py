@@ -78,8 +78,8 @@ HEADLINE_THEOREMS = [
     "VanillaZkVM.TwoStep.System.cte", # full-memory two-step CTE
     "VanillaZkVM.MemorySanity.exactVC_bindingAssumptions",  # satisfiability
     "VanillaZkVM.MemorySanity.appendBitVC_not_updateBinding",  # countermodel
-    "VanillaZkVM.ISA.System.stepPlain_iff_operation_at_pc",  # fixed-program selection
-    "VanillaZkVM.ISA.System.committedOperation_stepPlain",  # committed/plain bridge
+    "VanillaZkVM.ISA.System.step_iff_operation_at_pc",  # fixed-program selection
+    "VanillaZkVM.ISA.System.committedOperation_step",  # committed/step bridge
     "VanillaZkVM.MultiStep.System.combine_tree", # tree-unrolling extraction
     "VanillaZkVM.MultiStep.System.committedTrace_extract",  # embed ∘ tree unrolling
     "VanillaZkVM.MultiStep.System.cte",          # full-memory multi-step CTE

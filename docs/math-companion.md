@@ -118,9 +118,9 @@ record). This is the equivalence concrete systems use: instantiate `ZkVM`, prove
 
 ## 0.3 Step-interface contract
 
-The plain execution predicate is not duplicated:
+The step predicate is not duplicated:
 
-    stepPlain(S₁,S₂) := V.step(S₁,S₂).
+    isa.step(S₁,S₂) := V.step(S₁,S₂).
 
 A `StepInterface V` supplies a committed-state type `CState`, a representation
 predicate `Rep ⊆ CState × V.State`, and
@@ -292,7 +292,7 @@ and value agree with the instruction selected by the program.
 
 In the two-step `ZkVM`, the committed relation is strengthened to require that
 the same `MemStep` agrees with `code[pc]`; `traceValid_full` uses the trace
-theorem and the ISA correspondence lemma to conclude the single `stepPlain`
+theorem and the ISA correspondence lemma to conclude the single `ISA.System.step`
 predicate used as `ZkVM.step`. It still constructs `S₂` rather than assuming
 `CommitInv(Ŝ₂,S₂)`.
 
@@ -313,7 +313,7 @@ accounting remain assigned to Issues 6 and 10.
 
 The toy has a single zkVM instantiation, with
 
-    V.step := ISA.System.stepPlain,     V.PrivInput := Unit.
+    V.step := ISA.System.step,     V.PrivInput := Unit.
 
 It is deterministic: the private input is `()`.
 Its verifier commits the full boundary memories and calls the final verifier.
@@ -414,18 +414,18 @@ are not second copies of the memory equations.
 
 *Lean:* `ISA.System.operation`.
 
-### 3.3 Plain step predicate
+### 3.3 Step predicate
 
-The single plain-state step used as `ZkVM.step` is the five-way disjunction
+The single step predicate used as `ZkVM.step` is the five-way disjunction
 
-    stepPlain(S₁,S₂)
+    step(S₁,S₂)
       := φ_read(S₁,S₂) ∨ φ_write(S₁,S₂) ∨ φ_arith(S₁,S₂)
          ∨ φ_hash(S₁,S₂) ∨ φ_bin(S₁,S₂).
 
 Because each `φ_op` contains `code(pc₁)=op` and `code` is a function, this is
 equivalent to the single selected predicate
 
-    stepPlain(S₁,S₂) ↔ φ_code(pc₁)(S₁,S₂).
+    step(S₁,S₂) ↔ φ_code(pc₁)(S₁,S₂).
 
 The disjunction therefore does not let a witness choose an instruction
 independently of the fixed program.
@@ -433,7 +433,7 @@ independently of the fixed program.
 Consequently, whenever `φ_op(S₁,S₂)` holds and `op ≠ write`, memory is
 unchanged. In particular, a read cannot silently alter memory.
 
-*Lean:* `ISA.System.stepPlain`, `ISA.System.stepPlain_iff_operation_at_pc`.
+*Lean:* `ISA.System.step`, `ISA.System.step_iff_operation_at_pc`.
 
 ### 3.4 Committed operations and the two-step VM
 
@@ -465,21 +465,21 @@ fields agree with the selected instruction. Therefore
     committedOperation(Ŝ₁,Ŝ₂,w)
       ∧ CommitInv(Ŝ₁,S₁) ∧ CommitInv(Ŝ₂,S₂)
       ∧ FullMemory.step(S₁,S₂,w)
-      ⟹ stepPlain(S₁,S₂).
+      ⟹ step(S₁,S₂).
 
-This is why `TwoStep.System.toZkVM.step` can be `stepPlain`: the explicit
+This is why `TwoStep.System.toZkVM.step` can be `ISA.System.step`: the explicit
 memory-opening witness remains inside the committed extraction relation rather
 than becoming the public program semantics.
 
 *Lean:* `ISA.System.selectedMemFreePred`,
 `ISA.System.committedOperation`, `ISA.System.committedStep`,
-`ISA.System.committedOperation_stepPlain`, and `TwoStep.System.toZkVM`.
+`ISA.System.committedOperation_step`, and `TwoStep.System.toZkVM`.
 
 `ISASanity.lean` gives private accepted examples for a read and a write whose
 output memory differs from its input. It also rejects a step when the program
 contains a different operation class and rejects a write with the wrong output
 memory. Finally, it instantiates a private `ZkVM` whose `step` field is
-`ISA.System.stepPlain`. `TwoStepSanity.lean` additionally checks the public
+`ISA.System.step`. `TwoStepSanity.lean` additionally checks the public
 two-step construction using the same predicate. The next two sections describe
 the recursive proof structure and the bus evidence required by hash/precompile
 operations; this section does not verify concrete RV32IM opcode implementations.
@@ -518,7 +518,7 @@ combine node: with `m = 1` there would be nothing to merge and `R_4` would have
 no combine proof to wrap.
 
 `isa` is the fixed-program ISA (§3), the same structure the two-step toy
-takes. It supplies the plain step predicate `stepPlain` used as `ZkVM.step` and
+takes. It supplies the step predicate `ISA.System.step` used as `ZkVM.step` and
 the committed predicate `committedOperation` used by the leaf relation, so this
 layer no longer carries a bare `MemFreePredicate` of its own.
 
@@ -696,7 +696,7 @@ of declarations rather than shared:
     toCommitted(S)    := (S.pc, S.regs, commit(S.mem)),
 
     toZkVM := ( State     := full states over VC,
-                step      := isa.stepPlain,
+                step      := isa.step,
                 T         := T,
                 Stmt      := FinalStmtFull(VC),
                 PrivInput := Unit,
@@ -721,7 +721,7 @@ private input `()`):
 
 The `MemStep` sequence is chosen against `committedOperation` rather than the
 bare memory predicate, so the program checks survive reconstruction. That is what
-`committedOperation_stepPlain` (§3) then needs to conclude `stepPlain` at every
+`committedOperation_step` (§3) then needs to conclude `ISA.System.step` at every
 reconstructed transition — the VM's step predicate is the fixed-program one, so a
 purely memory-level witness would not suffice.
 
@@ -773,7 +773,7 @@ the Vanilla VM.
 
 What is *not* abstract any more is the execution semantics. This layer runs on
 the same fixed-program ISA as the two-step toy:
-`ZkVM.step` is `isa.stepPlain`, and the leaf relation demands
+`ZkVM.step` is `isa.step`, and the leaf relation demands
 `committedOperation` at every step, so a segment proof is pinned to the operation
 `code[pc]` selects. The two VMs therefore agree about what a step is, and
 `MultiStep.cte` is a statement about program-selected executions.
@@ -962,7 +962,7 @@ the shared theorem for joining traces:
 The buses themselves are not concatenated, and buses from different segments
 do not need to be equal. The boundary equalities alone join the state traces.
 Finally, the existing memory reconstruction theorem turns this committed trace
-into a full-memory trace satisfying `ISA.System.stepPlain`, proving CTE for the
+into a full-memory trace satisfying `ISA.System.step`, proving CTE for the
 two-step VM whose segment proofs use buses.
 The convert/combine/embed recursion tree is formalized separately in §4, where
 its base segment proof is left abstract. Section 7 supplies the bus-checked
@@ -1020,7 +1020,7 @@ later module needs this intermediate result as a separate public theorem.
 The final zkVM is the `MultiStep` instance after the substitution above:
 
     State     := FullVMState(VC),
-    step      := isa.stepPlain,
+    step      := isa.step,
     T         := T,
     PrivInput := Unit,
     Proof     := EmbedProof,
@@ -1065,7 +1065,7 @@ The extractor is the following composition of the already-proved layers:
 3. stop carrying the bus only after the bus-to-committed-operation theorem has
    shown that every recovered transition follows the fixed program; and
 4. reconstruct full memory from the known initial state and the committed
-   trace, obtaining a trace of `isa.stepPlain` between the claimed full-memory
+   trace, obtaining a trace of `isa.step` between the claimed full-memory
    endpoints.
 
 This is the perfect, probability-free form of `thm:main`. It verifies the chain
@@ -1079,7 +1079,7 @@ its straight-line recursive extraction assumes an idealized relativized SNARK.
 `VMs/VanillaVM/VanillaVMSanity.lean` provides a private two-step example in
 which the complete assumption structure holds and the final verifier accepts a
 proof. Both segments record an actual Keccak call in a nonempty bus. Its
-plain-step relation also accepts the represented hash transition.
+step relation also accepts the represented hash transition.
 For simplicity, its commitments store their inputs directly and its proofs
 contain the values returned by their extractors. The example shows that all
 assumptions can hold together; it does not establish the security of a

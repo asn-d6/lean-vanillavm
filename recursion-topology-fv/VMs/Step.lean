@@ -11,12 +11,12 @@ called "step." It states the required properties; concrete VM files prove them.
 
 ## Main definitions
 * `StepInterface` — a committed predicate and representation relation attached
-  to the single plain predicate `ZkVM.step`.
+  to the single step predicate `ZkVM.step`.
 * `StepInterface.BusBridge` — the proposition that a bus-deferred step implies
   the committed step after bus unification.
 
 `TwoStep.System.memoryStepInterface` is the one instance so far. Its
-`ZkVM.step` is `ISA.System.stepPlain`.
+`ZkVM.step` is `ISA.System.step`.
 `Bus.System.stepWithBus_committedOperation` checks the ISA cases and
 preserves the segment's explicit memory witness without choosing how segment
 proofs are combined. `Bus.TwoStepSystem.busBridge` uses that witness to prove
@@ -26,7 +26,7 @@ that the two-layer VM has a suitable memory witness. See
 
 namespace VanillaZkVM
 
-/-- Connects the plain step `V.step` of a zkVM to its committed-memory layer.
+/-- Connects the step `V.step` of a zkVM to its committed-memory layer.
 
 Not a paper definition. It is shared Lean glue for `eq:step-bus2`,
 `prop:memory-extractability` and `lem:segment`. -/
