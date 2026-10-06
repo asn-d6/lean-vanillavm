@@ -1,7 +1,6 @@
 import «recursion-topology-fv».Preliminaries.Trace
 import «recursion-topology-fv».Specification.Cte
 import «recursion-topology-fv».VMs.ISA
-import «recursion-topology-fv».VMs.Step
 
 /-!
 # A minimal "two-step" zkVM, instantiating the abstract system
@@ -189,16 +188,6 @@ def toZkVM : ZkVM where
   terminal := fun x _ => x.ST
   Proof := sys.FinalProof
   verify := fun x p => sys.finalVerify ⟨toCommitted x.S0, toCommitted x.ST⟩ p
-
-/-- This VM's instance of the step contract (`StepInterface`).
-`CommitInv` says when a committed state represents a full state.
-`ISA.System.committedStep` says that some program-consistent `MemStep` connects
-two committed states. This record connects those notions to `toZkVM.step`; it
-is not an additional paper security definition. -/
-def memoryStepInterface : StepInterface sys.toZkVM where
-  CommittedState := CommittedVMState sys.VC
-  represents := CommitInv
-  stepCommitted := sys.isa.committedStep
 
 /-- The cryptographic assumptions of `cte` for the two-step zkVM. `0 < Nseg` is not here;
 it is a separate argument. Paper: `prop:memory-extractability` and `thm:main` (ch05). -/

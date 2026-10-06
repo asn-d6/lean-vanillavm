@@ -85,7 +85,6 @@ HEADLINE_THEOREMS = [
     "VanillaZkVM.MultiStep.System.cte",          # full-memory multi-step CTE
     "VanillaZkVM.Bus.System.stepWithBus_committedOperation",  # bus/ISA witness bridge
     "VanillaZkVM.Bus.System.segment_extract",  # one-segment bus unification
-    "VanillaZkVM.Bus.TwoStepSystem.busBridge",  # concrete step-interface bridge
     "VanillaZkVM.Bus.TwoStepSystem.execution_extract",  # non-recursive per-segment execution
     "VanillaZkVM.Bus.TwoStepSystem.cte",       # bus-backed two-step CTE
     "VanillaZkVM.VanillaVM.System.cte_main",   # recursive CTE with bus-checked segments

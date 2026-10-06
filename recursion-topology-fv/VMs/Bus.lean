@@ -312,11 +312,9 @@ checked completely by `stepBus`.
 
 The conclusion preserves `aux.memory`, rather than merely proving that some
 memory witness exists. This lets the first extractor in a recursive proof
-retain the exact read/write opening recovered from the segment proof. It also
-implies the committed-step predicate between the two states required by
-`StepInterface.BusBridge`. A concrete VM can obtain that weaker statement by
-saying that `aux.memory` is the memory witness whose existence the interface
-requires.
+retain the exact read/write opening recovered from the segment proof. With
+`aux.memory` as the witness, it also gives `ISA.System.committedStep` between
+the two states.
 
 Paper: the implication from `eq:step-bus2` to the committed operation
 predicate used by `lem:segment` and `prop:memory-extractability`. -/

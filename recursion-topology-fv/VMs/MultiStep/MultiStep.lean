@@ -1,7 +1,6 @@
 import «recursion-topology-fv».Specification.Cte
 import «recursion-topology-fv».VMs.ISA
 import «recursion-topology-fv».VMs.Memory
-import «recursion-topology-fv».VMs.Step
 
 /-!
 # Multi-layer recursion → `MultiStepVM`
