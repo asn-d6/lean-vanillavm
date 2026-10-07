@@ -1,3 +1,5 @@
+import Mathlib
+
 /-!
 # Vector commitments and their binding notions
 
