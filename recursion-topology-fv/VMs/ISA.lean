@@ -97,7 +97,7 @@ variable {Index Value : Type} (isa : System Index Value)
 
 Every case checks that `code S₁.pc = op`. The read and write cases reuse
 `FullMemory.read` and `FullMemory.write`. Register 0 of `S₁` holds the address.
-Register 1 holds the value: of `S₂` for a read, and of `S₁` for a write. The
+Register 1 holds the value of `S₂` for a read, and of `S₁` for a write. The
 remaining cases combine their PC/register requirements with `S₂.mem = S₁.mem`.
 
 The read case also includes `S₂.mem = S₁.mem`. -/
